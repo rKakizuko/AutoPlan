@@ -1,0 +1,30 @@
+graph LR
+    Usuario[Usuario]
+    Administrador[Administrador]
+    Dono[Dono do Protocolo]
+
+    subgraph AutoPlan
+      Login[Autenticar]
+      Logout[Encerrar sessao]
+      Simular[Criar simulacao]
+      Gerar[Gerar protocolo]
+      Listar[Listar protocolos]
+      Detalhar[Ver detalhe do protocolo]
+      Atualizar[Atualizar pagamento]
+      Registrar[Registrar usuario]
+      Regras[Configurar taxas]
+    end
+
+    Usuario --> Login
+    Usuario --> Logout
+    Usuario --> Simular
+    Usuario --> Listar
+    Usuario --> Detalhar
+
+    Administrador --> Registrar
+    Administrador --> Regras
+    Dono --> Atualizar
+
+    Simular --> Gerar
+    Detalhar --> Listar
+    Atualizar --> Detalhar

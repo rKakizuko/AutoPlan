@@ -1,0 +1,34 @@
+flowchart LR
+    actorUser[<<actor>>\nUsuário]
+    actorAdmin[<<actor>>\nAdministrador]
+    actorOwner[<<actor>>\nDono do Protocolo]
+
+    actorAdmin -->|especialização| actorUser
+    actorOwner -->|especialização| actorUser
+
+    subgraph system[AutoPlan - Sistema de Simulação e Gestão de Protocolos]
+      UCLogin([Autenticar-se])
+      UCLogout([Encerrar sessão])
+      UCSimular([Criar simulação])
+      UCGerar([Gerar protocolo])
+      UCListar([Listar protocolos])
+      UCDetalhar([Visualizar detalhe do protocolo])
+      UCAtualizar([Atualizar status de pagamento])
+      UCRegistrar([Registrar novo usuário])
+      UCRegras([Configurar regras de pagamento])
+    end
+
+    actorUser --> UCLogin
+    actorUser --> UCLogout
+    actorUser --> UCSimular
+    actorUser --> UCListar
+    actorUser --> UCDetalhar
+
+    actorOwner --> UCAtualizar
+
+    actorAdmin --> UCRegistrar
+    actorAdmin --> UCRegras
+
+    UCDetalhar -. <<extend>> .-> UCListar
+    UCAtualizar -. <<extend>> .-> UCDetalhar
+    UCSimular -. <<include>> .-> UCGerar

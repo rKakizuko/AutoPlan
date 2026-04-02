@@ -1,34 +1,138 @@
 flowchart LR
-    actorUser[<<actor>>\nUsuário]
-    actorAdmin[<<actor>>\nAdministrador]
-    actorOwner[<<actor>>\nDono do Protocolo]
-
-    actorAdmin -->|especialização| actorUser
-    actorOwner -->|especialização| actorUser
-
-    subgraph system[AutoPlan - Sistema de Simulação e Gestão de Protocolos]
-      UCLogin([Autenticar-se])
-      UCLogout([Encerrar sessão])
-      UCSimular([Criar simulação])
-      UCGerar([Gerar protocolo])
-      UCListar([Listar protocolos])
-      UCDetalhar([Visualizar detalhe do protocolo])
-      UCAtualizar([Atualizar status de pagamento])
-      UCRegistrar([Registrar novo usuário])
-      UCRegras([Configurar regras de pagamento])
+    %% LANE USUARIO
+    subgraph LU[Lane Usuario]
+      U1[Acessa Tela Login]
+      U2[Insere credenciais]
+      U3{Email e senha validos?}
+      U4[Recebe JWT Token]
+      U5[Acessa Dashboard]
+      U6{Escolhe operacao}
+      U7[Criar nova simulacao]
+      U8[Insere dados do projeto]
+      U9[Calcula fluxo de caixa]
+      U10[Visualiza resultado]
+      U11[Salva protocolo]
+      U12[Consulta protocolo anterior]
+      U13[Atualiza status pagamento]
+      U14[Registra parcela como paga]
+      U15[Retorna ao Dashboard]
+      U16[✓ FIM Protocolo registrado e auditado]
     end
 
-    actorUser --> UCLogin
-    actorUser --> UCLogout
-    actorUser --> UCSimular
-    actorUser --> UCListar
-    actorUser --> UCDetalhar
+    %% LANE ADMINISTRADOR
+    subgraph LA[Lane Administrador]
+      A1[Acessa Tela Login]
+      A2[Insere credenciais admin]
+      A3{Email e senha validos?}
+      A4[Recebe JWT Token com role admin]
+      A5[Acessa Dashboard Admin]
+      A6{Escolhe operacao admin}
+      A7[Gerenciar Usuarios]
+      A8[Lista usuarios cadastrados]
+      A9[Cria novo usuario]
+      A10[Insere email e CPF]
+      A11[Validar dados unicos]
+      A12[Salva novo usuario]
+      A13[Edita ou remove usuario]
+      A14[Configurar Taxas]
+      A15[Visualiza regras atuais]
+      A16[Modifica percentuais]
+      A17[Salva novas regras]
+      A18[Visualizar Log Alteracoes]
+      A19[Consulta filtrado por usuario]
+      A20[Analisa eventos auditoria]
+      A21[✓ FIM Sistema gerenciado e auditado]
+    end
 
-    actorOwner --> UCAtualizar
+    %% POOL BACKEND
+    subgraph B[Pool Backend - Servicos]
+      BV[Validar JWT e Permissoes]
+      BA[Autenticar Usuario]
+      BU[Gerenciar Usuarios]
+      BP[Gerenciar Protocolos]
+      BC[Calcular Fluxo Caixa]
+      BR[Configurar Taxas]
+      BI[Registrar Auditoria]
+    end
 
-    actorAdmin --> UCRegistrar
-    actorAdmin --> UCRegras
+    %% POOL BANCO DE DADOS
+    subgraph D[Pool Banco de Dados - Persistencia]
+      DB1[(Collection Users)]
+      DB2[(Collection Protocols)]
+      DB3[(Collection PaymentRules)]
+      DB4[(Collection AuditLogs)]
+    end
 
-    UCDetalhar -. <<extend>> .-> UCListar
-    UCAtualizar -. <<extend>> .-> UCDetalhar
-    UCSimular -. <<include>> .-> UCGerar
+    %% FLUXO USUARIO
+    U1 --> U2
+    U2 --> U3
+    U3 -->|Nao| U1
+    U3 -->|Sim| U4
+    U4 --> U5
+    U5 --> U6
+    U6 -->|Simulador| U7
+    U6 -->|Protocolos| U12
+    U6 -->|Pagamentos| U13
+    U7 --> U8
+    U8 --> U9
+    U9 --> U10
+    U10 --> U11
+    U11 --> U15
+    U12 --> U15
+    U13 --> U14
+    U14 --> U15
+    U15 --> U16
+
+    %% FLUXO ADMINISTRADOR
+    A1 --> A2
+    A2 --> A3
+    A3 -->|Nao| A1
+    A3 -->|Sim| A4
+    A4 --> A5
+    A5 --> A6
+    A6 -->|Usuarios| A7
+    A6 -->|Taxas| A14
+    A6 -->|Log| A18
+    A7 --> A8
+    A8 --> A9
+    A9 --> A10
+    A10 --> A11
+    A11 --> A12
+    A12 --> A13
+    A13 --> A21
+    A14 --> A15
+    A15 --> A16
+    A16 --> A17
+    A17 --> A21
+    A18 --> A19
+    A19 --> A20
+    A20 --> A21
+
+    %% CHAMADAS BACKEND
+    U3 -.->|POST /auth/login| BA
+    A3 -.->|POST /auth/login| BA
+    U7 -.->|POST /protocols| BP
+    U9 -.->|Calcula| BC
+    U11 -.->|Salva| BP
+    U12 -.->|GET /protocols| BP
+    U13 -.->|PUT /protocols/:id/payment| BP
+    A9 -.->|POST /users| BU
+    A10 -.->|Valida dados| BV
+    A12 -.->|Registra usuario| BU
+    A13 -.->|PUT/DELETE /users| BU
+    A16 -.->|PUT /paymentRules| BR
+    A19 -.->|GET /audit-logs| BI
+    A20 -.->|Filtra eventos| BI
+
+    %% PERSISTENCIA
+    BA --> DB1
+    BU --> DB1
+    BP --> DB2
+    BC --> DB3
+    BR --> DB3
+    BI --> DB4
+
+    %% AUDITORIA
+    BU -.->|Registra evento| DB4
+    BP -.->|Registra evento| DB4
+    BR -.->|Registra evento| DB4

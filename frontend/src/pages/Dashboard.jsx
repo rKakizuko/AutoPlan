@@ -155,7 +155,7 @@ const Dashboard = () => {
                     onClick={() => navigate(`/protocolo/${p._id}`)}
                   >
                     <div style={{ cursor: 'pointer' }}>
-                      <strong style={{ color: '#f5deb3' }}>{p.cliente}</strong>
+                      <strong style={{ color: '#000000' }}>{p.cliente}</strong>
                       <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#9f8a55' }}>
                         {p.protocolId}
                       </p>

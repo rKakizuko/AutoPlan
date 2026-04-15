@@ -143,35 +143,35 @@ const Simulador = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
+  container: { minHeight: '100vh', backgroundColor: 'var(--app-bg)', color: 'var(--app-text)' },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '20px 40px',
-    backgroundColor: '#171718',
+    backgroundColor: 'var(--app-surface)',
     boxShadow: '0 2px 10px rgba(212,175,55,0.15)'
   },
-  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
+  logo: { color: 'var(--app-accent)', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
-  card: { backgroundColor: '#181819', color: '#f5deb3', padding: '30px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.35)', border: '1px solid #5f4b1c', width: '100%', maxWidth: '400px', margin: '40px auto' },
+  card: { backgroundColor: 'var(--app-surface)', color: 'var(--app-text)', padding: '30px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.35)', border: '1px solid var(--app-border)', width: '100%', maxWidth: '400px', margin: '40px auto' },
   backBtn: {
     padding: '10px 16px',
-    backgroundColor: '#232323',
-    color: '#d4af37',
-    border: '1px solid #8a6f2a',
+    backgroundColor: 'var(--app-button-dark)',
+    color: 'var(--app-accent)',
+    border: '1px solid var(--app-border)',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
     fontSize: '14px'
   },
-  title: { margin: '0 0 20px 0', color: '#d4af37' },
+  title: { margin: '0 0 20px 0', color: 'var(--app-accent)' },
   formGroup: { marginBottom: '15px', display: 'flex', flexDirection: 'column' },
-  input: { padding: '10px', borderRadius: '8px', border: '1px solid #6f5a22', backgroundColor: '#1f1f20', color: '#f5deb3' },
-  inputHighlight: { padding: '15px', borderRadius: '8px', border: '2px solid #d4af37', fontSize: '20px', fontWeight: 'bold', backgroundColor: '#1f1f20', color: '#f5deb3' },
-  totalBox: { backgroundColor: '#201b10', border: '1px solid #6f5a22', padding: '20px', borderRadius: '10px', marginTop: '20px', textAlign: 'center' },
-  totalValue: { margin: '5px 0', color: '#d4af37' },
-  saveBtn: { width: '100%', padding: '15px', marginTop: '20px', backgroundColor: '#d4af37', color: '#141414', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }
+  input: { padding: '10px', borderRadius: '8px', border: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface-2)', color: 'var(--app-text)' },
+  inputHighlight: { padding: '15px', borderRadius: '8px', border: '2px solid var(--app-accent)', fontSize: '20px', fontWeight: 'bold', backgroundColor: 'var(--app-surface-2)', color: 'var(--app-text)' },
+  totalBox: { backgroundColor: 'var(--app-surface-2)', border: '1px solid var(--app-border)', padding: '20px', borderRadius: '10px', marginTop: '20px', textAlign: 'center' },
+  totalValue: { margin: '5px 0', color: 'var(--app-accent)' },
+  saveBtn: { width: '100%', padding: '15px', marginTop: '20px', backgroundColor: 'var(--app-accent)', color: '#141414', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }
 };
 
 export default Simulador;

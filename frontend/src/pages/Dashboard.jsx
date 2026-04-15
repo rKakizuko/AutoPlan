@@ -143,9 +143,9 @@ const Dashboard = () => {
           <div style={styles.sideCard(isMobile)}>
             <h3 style={styles.sideTitle}>Protocolos Recentes</h3>
             {loading ? (
-              <p style={{ color: '#b8a36a' }}>Carregando...</p>
+              <p style={styles.protocolHint}>Carregando...</p>
             ) : protocols.length === 0 ? (
-              <p style={{ color: '#b8a36a' }}>Nenhum protocolo criado ainda</p>
+              <p style={styles.protocolHint}>Nenhum protocolo criado ainda</p>
             ) : (
               <ul style={styles.list}>
                 {protocols.map(p => (
@@ -155,12 +155,12 @@ const Dashboard = () => {
                     onClick={() => navigate(`/protocolo/${p._id}`)}
                   >
                     <div style={{ cursor: 'pointer' }}>
-                      <strong style={{ color: '#000000' }}>{p.cliente}</strong>
-                      <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#9f8a55' }}>
+                      <strong style={styles.protocolClient}>{p.cliente}</strong>
+                      <p style={styles.protocolId}>
                         {p.protocolId}
                       </p>
                     </div>
-                    <strong style={{ color: '#d4af37' }}>
+                    <strong style={styles.protocolValue}>
                       R$ {p.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </strong>
                   </li>
@@ -214,6 +214,10 @@ const styles = {
     border: '1px solid var(--app-border)'
   }),
   sideTitle: { margin: 0, color: 'var(--app-accent)' },
+  protocolHint: { color: 'var(--app-muted)' },
+  protocolClient: { color: 'var(--app-text)' },
+  protocolId: { margin: '5px 0 0 0', fontSize: '12px', color: 'var(--app-muted)' },
+  protocolValue: { color: 'var(--app-accent)' },
   list: { listStyle: 'none', padding: 0, marginTop: '15px', overflowY: 'auto', flex: 1 },
   listItem: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--app-border)' },
   welcome: { marginBottom: '30px' },

@@ -71,6 +71,7 @@ const AuditLogs = () => {
       user_logged_in: 'Usuario entrou no sistema',
       user_created: 'Usuario criado por administrador',
       user_updated: 'Dados do usuario foram atualizados',
+      user_profile_updated: 'Usuario atualizou o proprio perfil',
       user_deleted: 'Usuario removido por administrador',
       protocol_created: 'Novo protocolo foi criado',
       protocol_payment_updated: 'Status de pagamento do protocolo foi atualizado',
@@ -93,6 +94,7 @@ const AuditLogs = () => {
       user_logged_in: 'Autenticacao de usuario registrada.',
       user_created: 'Cadastro de usuario concluido pelo administrador.',
       user_updated: 'Informacoes cadastrais do usuario foram revisadas.',
+      user_profile_updated: 'O proprio usuario atualizou dados da conta.',
       user_deleted: 'Conta de usuario removida do sistema.',
       protocol_created: 'Dados iniciais do protocolo foram gravados.',
       protocol_payment_updated: 'Situacao de pagamento de uma parcela foi alterada.',
@@ -219,7 +221,7 @@ const styles = {
   dashboardLink: {
     padding: '10px 16px',
     borderRadius: '8px',
-    backgroundColor: '#111827',
+    backgroundColor: '#6d7c9c',
     color: '#fff',
     textDecoration: 'none',
     fontWeight: 'bold'

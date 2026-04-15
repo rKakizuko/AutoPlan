@@ -2,14 +2,19 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ensureLocalPreviewProtocol } from '../localPreviewProtocol';
 
-const COLUMN_HEIGHT = '420px';
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = user && user.role === 'admin';
   const [protocols, setProtocols] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 980);
+
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 980);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   React.useEffect(() => {
     const fetchProtocols = async () => {
@@ -69,12 +74,12 @@ const Dashboard = () => {
 
       <main style={styles.main}>
         <section style={styles.welcome}>
-          <h2>Painel de Projetos</h2>
-          <p>Selecione uma ação para começar</p>
+          <h2 style={styles.welcomeTitle}>Painel de Projetos</h2>
+          <p style={styles.welcomeSubtitle}>Selecione uma ação para começar</p>
         </section>
 
-        <div style={styles.grid}>
-          <div style={styles.buttonsColumn}>
+        <div style={styles.grid(isMobile)}>
+          <div style={styles.actionsGrid(isMobile)}>
             {/* BOTÃO PARA O SIMULADOR */}
             <Link to="/simulador" style={styles.mainCard}>
               <div style={styles.icon}>➕</div>
@@ -84,9 +89,17 @@ const Dashboard = () => {
               </div>
             </Link>
 
+            <Link to="/minha-conta" style={styles.mainCard}>
+              <div style={styles.icon}>🙍</div>
+              <div style={styles.cardText}>
+                <h3>Minha Conta</h3>
+                <p>Editar perfil e acompanhar protocolos</p>
+              </div>
+            </Link>
+
             {/* BOTÃO PARA GERENCIAR USUÁRIOS (APENAS PARA ADMIN) */}
             {isAdmin && (
-              <Link to="/users" style={{...styles.mainCard, backgroundColor: '#34a853'}}>
+              <Link to="/users" style={styles.mainCard}>
                 <div style={styles.icon}>👥</div>
                 <div style={styles.cardText}>
                   <h3>Gerenciar Usuários</h3>
@@ -97,7 +110,7 @@ const Dashboard = () => {
 
             {/* BOTÃO PARA CONFIGURAR REGRAS DE PAGAMENTO (APENAS PARA ADMIN) */}
             {isAdmin && (
-              <Link to="/payment-rules" style={{...styles.mainCard, backgroundColor: '#ff9800'}}>
+              <Link to="/payment-rules" style={styles.mainCard}>
                 <div style={styles.icon}>⚙️</div>
                 <div style={styles.cardText}>
                   <h3>Configurar Taxas</h3>
@@ -108,7 +121,7 @@ const Dashboard = () => {
 
             {/* BOTÃO PARA LOG DE ALTERAÇÕES (APENAS PARA ADMIN) */}
             {isAdmin && (
-              <Link to="/audit-logs" style={{...styles.mainCard, backgroundColor: '#6c5ce7'}}>
+              <Link to="/audit-logs" style={styles.mainCard}>
                 <div style={styles.icon}>📝</div>
                 <div style={styles.cardText}>
                   <h3>Log de Alterações</h3>
@@ -118,12 +131,12 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div style={styles.sideCard}>
-            <h3>Protocolos Recentes</h3>
+          <div style={styles.sideCard(isMobile)}>
+            <h3 style={styles.sideTitle}>Protocolos Recentes</h3>
             {loading ? (
-              <p style={{ color: '#999' }}>Carregando...</p>
+              <p style={{ color: '#b8a36a' }}>Carregando...</p>
             ) : protocols.length === 0 ? (
-              <p style={{ color: '#999' }}>Nenhum protocolo criado ainda</p>
+              <p style={{ color: '#b8a36a' }}>Nenhum protocolo criado ainda</p>
             ) : (
               <ul style={styles.list}>
                 {protocols.map(p => (
@@ -133,12 +146,12 @@ const Dashboard = () => {
                     onClick={() => navigate(`/protocolo/${p._id}`)}
                   >
                     <div style={{ cursor: 'pointer' }}>
-                      <strong>{p.cliente}</strong>
-                      <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#666' }}>
+                      <strong style={{ color: '#f5deb3' }}>{p.cliente}</strong>
+                      <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#9f8a55' }}>
                         {p.protocolId}
                       </p>
                     </div>
-                    <strong style={{ color: '#1a73e8' }}>
+                    <strong style={{ color: '#d4af37' }}>
                       R$ {p.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </strong>
                   </li>
@@ -153,26 +166,49 @@ const Dashboard = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#f8f9fa' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' },
-  logo: { color: '#1a73e8', margin: 0, fontSize: '24px' },
+  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#171718', boxShadow: '0 2px 10px rgba(212,175,55,0.15)' },
+  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
-  userProfile: { color: '#666', display: 'flex', alignItems: 'center', gap: '10px' },
-  adminBadge: { backgroundColor: '#ff9800', color: '#fff', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
-  logoutBtn: { padding: '8px 16px', backgroundColor: '#f44336', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
+  userProfile: { color: '#f5deb3', display: 'flex', alignItems: 'center', gap: '10px' },
+  adminBadge: { backgroundColor: '#d4af37', color: '#141414', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
+  logoutBtn: { padding: '8px 16px', backgroundColor: '#232323', color: '#d4af37', border: '1px solid #8a6f2a', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
   main: { padding: '40px', maxWidth: '1000px', margin: '0 auto' },
-  grid: { display: 'flex', gap: '20px', alignItems: 'stretch' },
-  buttonsColumn: { display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, height: COLUMN_HEIGHT },
+  grid: (isMobile) => ({
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : '1.6fr 1fr',
+    gap: '20px',
+    alignItems: 'stretch'
+  }),
+  actionsGrid: (isMobile) => ({
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+    gap: '16px',
+    alignContent: 'start'
+  }),
   mainCard: { 
-    textDecoration: 'none', backgroundColor: '#1a73e8', color: '#fff', padding: '40px', 
-    borderRadius: '15px', display: 'flex', alignItems: 'center', transition: 'transform 0.2s'
+    textDecoration: 'none', backgroundColor: '#1f1f20', color: '#f5deb3', padding: '40px', 
+    borderRadius: '15px', display: 'flex', alignItems: 'center', transition: 'transform 0.2s', minHeight: '120px', border: '1px solid #8a6f2a'
   },
-  icon: { fontSize: '40px', marginRight: '20px' },
-  cardText: { color: '#fff' },
-  sideCard: { backgroundColor: '#fff', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, height: COLUMN_HEIGHT },
+  icon: { fontSize: '40px', marginRight: '20px', color: '#d4af37' },
+  cardText: { color: '#f5deb3' },
+  sideCard: (isMobile) => ({
+    backgroundColor: '#181819',
+    padding: '20px',
+    borderRadius: '15px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: isMobile ? '280px' : '100%',
+    maxHeight: isMobile ? 'none' : '560px',
+    border: '1px solid #5f4b1c'
+  }),
+  sideTitle: { margin: 0, color: '#d4af37' },
   list: { listStyle: 'none', padding: 0, marginTop: '15px', overflowY: 'auto', flex: 1 },
-  listItem: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #eee' },
-  welcome: { marginBottom: '30px' }
+  listItem: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #2a2a2a' },
+  welcome: { marginBottom: '30px' },
+  welcomeTitle: { margin: 0, color: '#f5deb3' },
+  welcomeSubtitle: { margin: '6px 0 0 0', color: '#b8a36a' }
 };
 
 export default Dashboard;

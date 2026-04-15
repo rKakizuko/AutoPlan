@@ -91,7 +91,11 @@ router.post('/', verifyToken, async (req, res) => {
 // Get all protocols for authenticated users
 router.get('/', verifyToken, async (req, res) => {
   try {
-    const protocols = await Protocol.find().sort({ createdAt: -1 });
+    const actor = await User.findById(req.userId);
+    const isAdmin = actor?.role === 'admin';
+    const filter = isAdmin ? {} : { userId: req.userId };
+
+    const protocols = await Protocol.find(filter).sort({ createdAt: -1 });
     res.json(protocols);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -101,10 +105,17 @@ router.get('/', verifyToken, async (req, res) => {
 // Get single protocol
 router.get('/:id', verifyToken, async (req, res) => {
   try {
+    const actor = await User.findById(req.userId);
+    const isAdmin = actor?.role === 'admin';
+
     const protocol = await Protocol.findById(req.params.id);
     
     if (!protocol) {
       return res.status(404).json({ message: 'Protocol not found' });
+    }
+
+    if (!isAdmin && protocol.userId.toString() !== req.userId.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
     }
 
     res.json(protocol);

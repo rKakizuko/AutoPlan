@@ -140,6 +140,90 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Get own profile
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, '-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      id: user._id,
+      email: user.email,
+      cpf: user.cpf,
+      role: user.role,
+      createdAt: user.createdAt,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update own profile
+router.put('/me', verifyToken, async (req, res) => {
+  try {
+    const { email, cpf, password } = req.body;
+    const normalizedCpf = normalizeCpf(cpf || '');
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
+      return res.status(400).json({ message: 'CPF must have 11 digits' });
+    }
+
+    if (password && password.length < 6) {
+      return res.status(400).json({ message: 'Password must have at least 6 characters' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const emailInUse = await User.findOne({ email, _id: { $ne: req.userId } });
+    if (emailInUse) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    if (normalizedCpf) {
+      const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: req.userId } });
+      if (cpfInUse) {
+        return res.status(400).json({ message: 'CPF already in use' });
+      }
+    }
+
+    user.email = email;
+    user.cpf = normalizedCpf || undefined;
+    if (password) {
+      user.password = password;
+    }
+
+    await user.save();
+
+    await createAuditLog({
+      action: 'user_profile_updated',
+      entityType: 'user',
+      entityId: user._id.toString(),
+      actorId: user._id,
+      actorEmail: user.email,
+      details: { email: user.email, cpf: user.cpf },
+    });
+
+    res.json({
+      id: user._id,
+      email: user.email,
+      cpf: user.cpf,
+      role: user.role,
+      createdAt: user.createdAt,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // List users (admin only)
 router.get('/users', verifyToken, requireAdmin, async (req, res) => {
   try {

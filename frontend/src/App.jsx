@@ -7,6 +7,7 @@ import Simulador from './pages/Simulador';
 import ProtocolDetail from './pages/ProtocolDetail';
 import PaymentRules from './pages/PaymentRules';
 import AuditLogs from './pages/AuditLogs';
+import UserProfile from './pages/UserProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -41,6 +42,14 @@ function App() {
         />
         <Route path="/" element={<Dashboard />} />
         <Route path="/simulador" element={<Simulador />} />
+        <Route
+          path="/minha-conta"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/protocolo/:protocolId" element={<ProtocolDetail />} />
       </Routes>
     </Router>

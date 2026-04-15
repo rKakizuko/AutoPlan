@@ -233,34 +233,34 @@ const PaymentRules = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
+  container: { minHeight: '100vh', backgroundColor: 'var(--app-bg)', color: 'var(--app-text)' },
   header: { 
     display: 'flex', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
     padding: '20px 40px', 
-    backgroundColor: '#171718', 
+    backgroundColor: 'var(--app-surface)', 
     boxShadow: '0 2px 10px rgba(212,175,55,0.15)' 
   },
-  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
+  logo: { color: 'var(--app-accent)', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
-  userProfile: { color: '#f5deb3', display: 'flex', alignItems: 'center', gap: '10px' },
-  adminBadge: { backgroundColor: '#d4af37', color: '#141414', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
+  userProfile: { color: 'var(--app-text)', display: 'flex', alignItems: 'center', gap: '10px' },
+  adminBadge: { backgroundColor: 'var(--app-accent)', color: '#141414', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
   backBtn: {
     padding: '10px 16px',
-    backgroundColor: '#232323',
-    color: '#d4af37',
-    border: '1px solid #8a6f2a',
+    backgroundColor: 'var(--app-button-dark)',
+    color: 'var(--app-accent)',
+    border: '1px solid var(--app-border)',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
     fontSize: '14px',
   },
   main: { padding: '40px', maxWidth: '1200px', margin: '0 auto' },
-  titleSection: { marginBottom: '24px', color: '#f5deb3' },
+  titleSection: { marginBottom: '24px', color: 'var(--app-text)' },
   successMessage: { 
-    backgroundColor: '#122515', 
-    color: '#8fcd99', 
+    backgroundColor: 'var(--app-success-bg)', 
+    color: 'var(--app-success-text)', 
     padding: '15px', 
     borderRadius: '8px', 
     marginBottom: '20px',
@@ -273,12 +273,12 @@ const styles = {
     marginBottom: '40px'
   },
   ruleCard: { 
-    backgroundColor: '#181819', 
-    color: '#f5deb3',
+    backgroundColor: 'var(--app-surface)', 
+    color: 'var(--app-text)',
     padding: '25px', 
     borderRadius: '12px', 
     boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
-    border: '1px solid #5f4b1c',
+    border: '1px solid var(--app-border)',
     display: 'flex',
     flexDirection: 'column',
     minHeight: '320px',
@@ -293,16 +293,16 @@ const styles = {
   input: { 
     padding: '10px', 
     borderRadius: '8px', 
-    border: '1px solid #6f5a22', 
+    border: '1px solid var(--app-border)', 
     fontSize: '14px',
-    backgroundColor: '#1f1f20',
-    color: '#f5deb3'
+    backgroundColor: 'var(--app-surface-2)',
+    color: 'var(--app-text)'
   },
   buttonGroup: { display: 'flex', gap: '10px' },
   saveBtn: { 
     flex: 1,
     padding: '10px', 
-    backgroundColor: '#d4af37', 
+    backgroundColor: 'var(--app-accent)', 
     color: '#141414', 
     border: 'none', 
     borderRadius: '8px', 
@@ -312,9 +312,9 @@ const styles = {
   cancelBtn: { 
     flex: 1,
     padding: '10px', 
-    backgroundColor: '#232323', 
-    color: '#f5deb3', 
-    border: '1px solid #6f5a22', 
+    backgroundColor: 'var(--app-button-dark)', 
+    color: 'var(--app-text)', 
+    border: '1px solid var(--app-border)', 
     borderRadius: '8px', 
     cursor: 'pointer', 
     fontWeight: 'bold'
@@ -323,8 +323,8 @@ const styles = {
     width: '100%',
     marginTop: 'auto',
     padding: '10px', 
-    backgroundColor: '#d4af37', 
-    color: '#141414', 
+    backgroundColor: 'var(--app-accent)', 
+    color: '#f8ffbe', 
     border: 'none', 
     borderRadius: '8px', 
     cursor: 'pointer', 
@@ -339,7 +339,7 @@ const styles = {
   },
   cardObs: {
     margin: '0',
-    color: '#b8a36a',
+    color: 'var(--app-muted)',
     fontSize: '13px',
   },
   taxaValue: { color: '#d4af37', fontWeight: 'bold', fontSize: '16px' }

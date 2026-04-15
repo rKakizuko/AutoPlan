@@ -4,10 +4,50 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: dark;
+  --app-bg: #0f0f10;
+  --app-surface: #181819;
+  --app-surface-2: #1f1f20;
+  --app-text: #f5deb3;
+  --app-muted: #b8a36a;
+  --app-border: #5f4b1c;
+  --app-accent: #d4af37;
+  --app-accent-strong: #f2cc72;
+  --app-button-dark: #232323;
+  --app-danger-bg: #2d1314;
+  --app-danger-text: #f39ca2;
+  --app-success-bg: #122515;
+  --app-success-text: #8fcd99;
+  --scrollbar-track: #141414;
+  --scrollbar-thumb: #8a6f2a;
+  --scrollbar-thumb-hover: #d4af37;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --app-bg: #f5f1e8;
+  --app-surface: #ffffff;
+  --app-surface-2: #f4efe4;
+  --app-text: #1a1a1a;
+  --app-muted: #6b6254;
+  --app-border: #c7b17a;
+  --app-accent: #8a6f2a;
+  --app-accent-strong: #b08d2b;
+  --app-button-dark: #f5f1e8;
+  --app-danger-bg: #fde8e8;
+  --app-danger-text: #b42318;
+  --app-success-bg: #e9f7ef;
+  --app-success-text: #1f7a4f;
+  --scrollbar-track: #ebe4d2;
+  --scrollbar-thumb: #b79c55;
+  --scrollbar-thumb-hover: #8a6f2a;
+}
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  color: #333;
-  background-color: #f8f9fa;
+  color: var(--app-text);
+  background-color: var(--app-bg);
 }
 
 #root {
@@ -15,11 +55,9 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbar global no tema preto/dourado */
-:root {
-  --scrollbar-track: #141414;
-  --scrollbar-thumb: #8a6f2a;
-  --scrollbar-thumb-hover: #d4af37;
+body,
+#root {
+  background-color: var(--app-bg);
 }
 
 /* Firefox */

@@ -193,22 +193,22 @@ const AuditLogs = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
+  container: { minHeight: '100vh', backgroundColor: 'var(--app-bg)', color: 'var(--app-text)' },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '20px 40px',
-    backgroundColor: '#171718',
+    backgroundColor: 'var(--app-surface)',
     boxShadow: '0 2px 10px rgba(212,175,55,0.15)'
   },
-  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
+  logo: { color: 'var(--app-accent)', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
   backBtn: {
     padding: '10px 16px',
-    backgroundColor: '#232323',
-    color: '#d4af37',
-    border: '1px solid #8a6f2a',
+    backgroundColor: 'var(--app-button-dark)',
+    color: 'var(--app-accent)',
+    border: '1px solid var(--app-border)',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
@@ -216,13 +216,13 @@ const styles = {
   },
   main: { padding: '40px', maxWidth: '1200px', margin: '0 auto' },
   topSection: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '20px' },
-  pageTitle: { margin: 0, color: '#f5deb3' },
-  subtitle: { margin: '6px 0 0 0', color: '#b8a36a' },
+  pageTitle: { margin: 0, color: 'var(--app-text)' },
+  subtitle: { margin: '6px 0 0 0', color: 'var(--app-muted)' },
   dashboardLink: {
     padding: '10px 16px',
     borderRadius: '8px',
-    backgroundColor: '#6d7c9c',
-    color: '#fff',
+    backgroundColor: 'var(--app-button-dark)',
+    color: 'var(--app-accent)',
     textDecoration: 'none',
     fontWeight: 'bold'
   },
@@ -230,62 +230,62 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     gap: '16px',
-    backgroundColor: '#181819',
+    backgroundColor: 'var(--app-surface)',
     padding: '20px',
     borderRadius: '12px',
     boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
-    border: '1px solid #5f4b1c',
+    border: '1px solid var(--app-border)',
     marginBottom: '20px'
   },
-  filterGroup: { display: 'flex', flexDirection: 'column', gap: '8px', color: '#f5deb3' },
+  filterGroup: { display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--app-text)' },
   input: {
     padding: '10px 12px',
-    border: '1px solid #6f5a22',
+    border: '1px solid var(--app-border)',
     borderRadius: '8px',
     fontSize: '14px',
-    backgroundColor: '#1f1f20',
-    color: '#f5deb3'
+    backgroundColor: 'var(--app-surface-2)',
+    color: 'var(--app-text)'
   },
   error: {
-    backgroundColor: '#2d1314',
-    color: '#f39ca2',
+    backgroundColor: 'var(--app-danger-bg)',
+    color: 'var(--app-danger-text)',
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '20px'
   },
   tableWrap: {
-    backgroundColor: '#181819',
+    backgroundColor: 'var(--app-surface)',
     borderRadius: '12px',
     boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
-    border: '1px solid #5f4b1c',
+    border: '1px solid var(--app-border)',
     overflowX: 'auto'
   },
   table: { width: '100%', borderCollapse: 'collapse', minWidth: '900px' },
   th: {
     textAlign: 'left',
     padding: '14px 16px',
-    backgroundColor: '#1f1f20',
-    color: '#d4af37',
+    backgroundColor: 'var(--app-surface-2)',
+    color: 'var(--app-accent)',
     fontSize: '13px'
   },
   td: {
     padding: '14px 16px',
-    borderTop: '1px solid #2a2a2a',
+    borderTop: '1px solid var(--app-border)',
     verticalAlign: 'top',
     fontSize: '14px',
-    color: '#f5deb3'
+    color: 'var(--app-text)'
   },
   tdDetails: {
     padding: '14px 16px',
-    borderTop: '1px solid #2a2a2a',
+    borderTop: '1px solid var(--app-border)',
     verticalAlign: 'top',
-    color: '#b8a36a',
+    color: 'var(--app-muted)',
     maxWidth: '420px'
   },
   emptyState: {
     padding: '30px',
     textAlign: 'center',
-    color: '#b8a36a'
+    color: 'var(--app-muted)'
   }
 };
 

@@ -9,6 +9,12 @@ const Dashboard = () => {
   const [protocols, setProtocols] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 980);
+  const [theme, setTheme] = React.useState(() => localStorage.getItem('theme') || 'dark');
+
+  React.useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   React.useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 980);
@@ -64,6 +70,9 @@ const Dashboard = () => {
       <header style={styles.header}>
         <h1 style={styles.logo}>AutoPlan</h1>
         <div style={styles.userSection}>
+          <button onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))} style={styles.themeBtn}>
+            {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+          </button>
           <span style={styles.userProfile}>
             Olá, {user?.email || 'Usuário'}
             {isAdmin && <span style={styles.adminBadge}>ADMIN</span>}
@@ -166,13 +175,14 @@ const Dashboard = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#171718', boxShadow: '0 2px 10px rgba(212,175,55,0.15)' },
-  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
+  container: { minHeight: '100vh', backgroundColor: 'var(--app-bg)', color: 'var(--app-text)' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: 'var(--app-surface)', boxShadow: '0 2px 10px rgba(212,175,55,0.15)' },
+  logo: { color: 'var(--app-accent)', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
-  userProfile: { color: '#f5deb3', display: 'flex', alignItems: 'center', gap: '10px' },
-  adminBadge: { backgroundColor: '#d4af37', color: '#141414', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
-  logoutBtn: { padding: '8px 16px', backgroundColor: '#232323', color: '#d4af37', border: '1px solid #8a6f2a', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
+  userProfile: { color: 'var(--app-text)', display: 'flex', alignItems: 'center', gap: '10px' },
+  adminBadge: { backgroundColor: 'var(--app-accent)', color: '#141414', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
+  themeBtn: { padding: '8px 14px', backgroundColor: 'var(--app-button-dark)', color: 'var(--app-accent)', border: '1px solid var(--app-border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
+  logoutBtn: { padding: '8px 16px', backgroundColor: 'var(--app-button-dark)', color: 'var(--app-accent)', border: '1px solid var(--app-border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
   main: { padding: '40px', maxWidth: '1000px', margin: '0 auto' },
   grid: (isMobile) => ({
     display: 'grid',
@@ -187,13 +197,13 @@ const styles = {
     alignContent: 'start'
   }),
   mainCard: { 
-    textDecoration: 'none', backgroundColor: '#1f1f20', color: '#f5deb3', padding: '40px', 
-    borderRadius: '15px', display: 'flex', alignItems: 'center', transition: 'transform 0.2s', minHeight: '120px', border: '1px solid #8a6f2a'
+    textDecoration: 'none', backgroundColor: 'var(--app-surface-2)', color: 'var(--app-text)', padding: '40px', 
+    borderRadius: '15px', display: 'flex', alignItems: 'center', transition: 'transform 0.2s', minHeight: '120px', border: '1px solid var(--app-border)'
   },
-  icon: { fontSize: '40px', marginRight: '20px', color: '#d4af37' },
-  cardText: { color: '#f5deb3' },
+  icon: { fontSize: '40px', marginRight: '20px', color: 'var(--app-accent)' },
+  cardText: { color: 'var(--app-text)' },
   sideCard: (isMobile) => ({
-    backgroundColor: '#181819',
+    backgroundColor: 'var(--app-surface)',
     padding: '20px',
     borderRadius: '15px',
     boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
@@ -201,14 +211,14 @@ const styles = {
     flexDirection: 'column',
     minHeight: isMobile ? '280px' : '100%',
     maxHeight: isMobile ? 'none' : '560px',
-    border: '1px solid #5f4b1c'
+    border: '1px solid var(--app-border)'
   }),
-  sideTitle: { margin: 0, color: '#d4af37' },
+  sideTitle: { margin: 0, color: 'var(--app-accent)' },
   list: { listStyle: 'none', padding: 0, marginTop: '15px', overflowY: 'auto', flex: 1 },
-  listItem: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #2a2a2a' },
+  listItem: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--app-border)' },
   welcome: { marginBottom: '30px' },
-  welcomeTitle: { margin: 0, color: '#f5deb3' },
-  welcomeSubtitle: { margin: '6px 0 0 0', color: '#b8a36a' }
+  welcomeTitle: { margin: 0, color: 'var(--app-text)' },
+  welcomeSubtitle: { margin: '6px 0 0 0', color: 'var(--app-muted)' }
 };
 
 export default Dashboard;

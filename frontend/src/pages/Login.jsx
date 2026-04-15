@@ -89,25 +89,25 @@ const styles = {
     justifyContent: 'center', 
     alignItems: 'center', 
     minHeight: '100vh', 
-    backgroundColor: '#0f0f10' 
+    backgroundColor: 'var(--app-bg)' 
   },
   card: { 
-    backgroundColor: '#181819', 
+    backgroundColor: 'var(--app-surface)', 
     padding: '40px', 
     borderRadius: '15px', 
     boxShadow: '0 10px 25px rgba(0,0,0,0.35)', 
-    border: '1px solid #5f4b1c',
+    border: '1px solid var(--app-border)',
     width: '100%', 
     maxWidth: '400px',
     textAlign: 'center'
   },
   title: { 
-    color: '#d4af37', 
+    color: 'var(--app-accent)', 
     margin: '0 0 10px 0', 
     fontSize: '32px' 
   },
   subtitle: { 
-    color: '#f5deb3', 
+    color: 'var(--app-text)', 
     margin: '0 0 30px 0',
     fontSize: '24px'
   },
@@ -124,15 +124,15 @@ const styles = {
   input: { 
     padding: '12px', 
     borderRadius: '8px', 
-    border: '1px solid #6f5a22', 
+    border: '1px solid var(--app-border)', 
     fontSize: '16px',
     marginTop: '8px',
-    backgroundColor: '#1f1f20',
-    color: '#f5deb3'
+    backgroundColor: 'var(--app-surface-2)',
+    color: 'var(--app-text)'
   },
   loginBtn: { 
     padding: '12px', 
-    backgroundColor: '#d4af37', 
+    backgroundColor: 'var(--app-accent)', 
     color: '#141414', 
     border: 'none', 
     borderRadius: '8px', 
@@ -142,15 +142,15 @@ const styles = {
     transition: 'background-color 0.3s'
   },
   error: { 
-    backgroundColor: '#2d1314', 
-    color: '#f39ca2', 
+    backgroundColor: 'var(--app-danger-bg)', 
+    color: 'var(--app-danger-text)', 
     padding: '12px', 
     borderRadius: '8px', 
     marginBottom: '20px',
     fontSize: '14px'
   },
   footer: {
-    color: '#b8a36a',
+    color: 'var(--app-muted)',
     fontSize: '14px',
     marginTop: '20px'
   },

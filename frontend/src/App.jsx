@@ -11,6 +11,11 @@ import UserProfile from './pages/UserProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.dataset.theme = savedTheme;
+  }, []);
+
   return (
     <Router>
       <Routes>

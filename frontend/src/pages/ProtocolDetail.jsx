@@ -119,7 +119,7 @@ const ProtocolDetail = () => {
           </div>
         </header>
         <div style={styles.card}>
-          <h2 style={{ color: '#c62828' }}>Erro</h2>
+          <h2 style={{ color: 'var(--app-danger-text)' }}>Erro</h2>
           <p>{error}</p>
         </div>
       </div>
@@ -202,7 +202,7 @@ const ProtocolDetail = () => {
 
           <div style={styles.infoBox}>
             <label>Valor Final</label>
-            <p style={{ ...styles.value, fontSize: '24px', color: '#1a73e8', fontWeight: 'bold' }}>
+            <p style={{ ...styles.value, fontSize: '24px', color: 'var(--app-accent)', fontWeight: 'bold' }}>
               R$ {protocol.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </div>
@@ -233,12 +233,12 @@ const ProtocolDetail = () => {
               {protocol.payments.map((payment) => (
                 <div key={payment.parcelaNumero} style={{
                   ...styles.paymentCard,
-                  backgroundColor: payment.pago ? '#1c2318' : '#2b2110',
-                  borderLeft: `4px solid ${payment.pago ? '#b89b42' : '#8a6f2a'}`
+                  backgroundColor: payment.pago ? 'var(--app-success-bg)' : 'var(--app-surface-2)',
+                  borderLeft: `4px solid ${payment.pago ? 'var(--app-accent)' : 'var(--app-border)'}`
                 }}>
                   <div style={styles.paymentHeader}>
                     <span style={styles.parcelaLabel}>Parcela {payment.parcelaNumero}</span>
-                    <span style={{...styles.paymentStatus, color: payment.pago ? '#d4af37' : '#f2cc72'}}>
+                    <span style={{...styles.paymentStatus, color: payment.pago ? 'var(--app-accent)' : 'var(--app-accent-strong)'}}>
                       {payment.pago ? '✓ Pago' : '⏳ Pendente'}
                     </span>
                   </div>
@@ -255,9 +255,9 @@ const ProtocolDetail = () => {
                     disabled={updatingPayment === payment.parcelaNumero}
                     style={{
                       ...styles.paymentBtn,
-                      backgroundColor: payment.pago ? '#232323' : '#d4af37',
-                      color: payment.pago ? '#f5deb3' : '#141414',
-                      border: payment.pago ? '1px solid #6f5a22' : 'none'
+                      backgroundColor: payment.pago ? 'var(--app-button-dark)' : 'var(--app-accent)',
+                      color: payment.pago ? 'var(--app-text)' : '#141414',
+                      border: payment.pago ? '1px solid var(--app-border)' : 'none'
                     }}
                   >
                     {updatingPayment === payment.parcelaNumero ? 'Atualizando...' : (payment.pago ? 'Marcar como Pendente' : 'Marcar como Pago')}
@@ -283,33 +283,33 @@ const ProtocolDetail = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
+  container: { minHeight: '100vh', backgroundColor: 'var(--app-bg)', color: 'var(--app-text)' },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '20px 40px',
-    backgroundColor: '#171718',
+    backgroundColor: 'var(--app-surface)',
     boxShadow: '0 2px 10px rgba(212,175,55,0.15)'
   },
-  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
+  logo: { color: 'var(--app-accent)', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
   card: { 
-    backgroundColor: '#181819', 
+    backgroundColor: 'var(--app-surface)', 
     padding: '40px', 
     borderRadius: '15px', 
     boxShadow: '0 10px 25px rgba(0,0,0,0.35)', 
-    border: '1px solid #5f4b1c',
-    color: '#f5deb3',
+    border: '1px solid var(--app-border)',
+    color: 'var(--app-text)',
     width: '100%', 
     maxWidth: '600px',
     margin: '20px auto'
   },
   backBtn: { 
     padding: '10px 16px',
-    backgroundColor: '#232323',
-    color: '#d4af37',
-    border: '1px solid #8a6f2a',
+    backgroundColor: 'var(--app-button-dark)',
+    color: 'var(--app-accent)',
+    border: '1px solid var(--app-border)',
     borderRadius: '8px',
     cursor: 'pointer', 
     marginBottom: '20px', 
@@ -317,7 +317,7 @@ const styles = {
     fontSize: '14px'
   },
   protocolId: { 
-    color: '#d4af37', 
+    color: 'var(--app-accent)', 
     margin: '0 0 30px 0',
     fontSize: '28px'
   },
@@ -329,45 +329,45 @@ const styles = {
   },
   infoBox: { 
     padding: '15px', 
-    backgroundColor: '#1f1f20', 
+    backgroundColor: 'var(--app-surface-2)', 
     borderRadius: '8px',
-    borderLeft: '4px solid #d4af37'
+    borderLeft: '4px solid var(--app-accent)'
   },
   value: { 
     margin: '8px 0 0 0',
     fontSize: '16px',
     fontWeight: '600',
-    color: '#f5deb3'
+    color: 'var(--app-text)'
   },
   parcelasBox: { 
-    backgroundColor: '#201b10', 
-    border: '1px solid #6f5a22',
+    backgroundColor: 'var(--app-surface-2)', 
+    border: '1px solid var(--app-border)',
     padding: '20px', 
     borderRadius: '10px',
     marginBottom: '30px'
   },
   parcelaInfo: { 
     fontSize: '16px',
-    color: '#d4af37',
+    color: 'var(--app-accent)',
     fontWeight: '600',
     margin: '10px 0 0 0'
   },
   footer: { 
-    borderTop: '1px solid #2a2a2a',
+    borderTop: '1px solid var(--app-border)',
     paddingTop: '20px',
     textAlign: 'center'
   },
   createdInfo: { 
-    color: '#b8a36a',
+    color: 'var(--app-muted)',
     fontSize: '12px',
     margin: 0
   },
   paymentsBox: {
-    backgroundColor: '#121213',
+    backgroundColor: 'var(--app-surface)',
     padding: '20px',
     borderRadius: '10px',
     marginBottom: '30px',
-    border: '1px solid #5f4b1c',
+    border: '1px solid var(--app-border)',
     height: '430px',
     display: 'flex',
     flexDirection: 'column'
@@ -404,17 +404,17 @@ const styles = {
     fontSize: '18px',
     fontWeight: 'bold',
     margin: '10px 0',
-    color: '#f5deb3'
+    color: 'var(--app-text)'
   },
   paymentDate: {
     fontSize: '11px',
-    color: '#b8a36a',
+    color: 'var(--app-muted)',
     margin: '5px 0'
   },
   paymentBtn: {
     width: '100%',
     padding: '8px',
-    color: '#fff',
+    color: '#141414',
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
@@ -424,10 +424,10 @@ const styles = {
     transition: 'opacity 0.2s'
   },
   paymentSummary: {
-    backgroundColor: '#201b10',
+    backgroundColor: 'var(--app-surface-2)',
     padding: '15px',
     borderRadius: '8px',
-    borderLeft: '4px solid #d4af37',
+    borderLeft: '4px solid var(--app-accent)',
     display: 'flex',
     justifyContent: 'space-around',
     alignItems: 'center'

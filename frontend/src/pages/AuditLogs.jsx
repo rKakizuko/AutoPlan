@@ -65,14 +65,42 @@ const AuditLogs = () => {
     );
   }
 
-  const formatDetails = (details) => {
-    if (!details) return '-';
-    try {
-      const normalized = typeof details === 'string' ? JSON.parse(details) : details;
-      return JSON.stringify(normalized, null, 2);
-    } catch {
-      return typeof details === 'string' ? details : JSON.stringify(details);
-    }
+  const getActionSummary = (log) => {
+    const actionMap = {
+      user_registered: 'Novo usuario se cadastrou',
+      user_logged_in: 'Usuario entrou no sistema',
+      user_created: 'Usuario criado por administrador',
+      user_updated: 'Dados do usuario foram atualizados',
+      user_deleted: 'Usuario removido por administrador',
+      protocol_created: 'Novo protocolo foi criado',
+      protocol_payment_updated: 'Status de pagamento do protocolo foi atualizado',
+      payment_rules_created: 'Regras de pagamento foram criadas',
+      payment_rules_updated: 'Regras de pagamento foram atualizadas',
+    };
+
+    if (actionMap[log.action]) return actionMap[log.action];
+
+    return log.action
+      ?.split('_')
+      .filter(Boolean)
+      .join(' ')
+      .replace(/^./, (char) => char.toUpperCase()) || 'Acao registrada';
+  };
+
+  const getLogSummary = (log) => {
+    const summaryMap = {
+      user_registered: 'Registro de conta realizado com sucesso.',
+      user_logged_in: 'Autenticacao de usuario registrada.',
+      user_created: 'Cadastro de usuario concluido pelo administrador.',
+      user_updated: 'Informacoes cadastrais do usuario foram revisadas.',
+      user_deleted: 'Conta de usuario removida do sistema.',
+      protocol_created: 'Dados iniciais do protocolo foram gravados.',
+      protocol_payment_updated: 'Situacao de pagamento de uma parcela foi alterada.',
+      payment_rules_created: 'Configuracao inicial das regras de pagamento salva.',
+      payment_rules_updated: 'Politica de pagamento atualizada no sistema.',
+    };
+
+    return summaryMap[log.action] || 'Atualizacao registrada no log de auditoria.';
   };
 
   return (
@@ -140,19 +168,17 @@ const AuditLogs = () => {
                   <th style={styles.th}>Ação</th>
                   <th style={styles.th}>Entidade</th>
                   <th style={styles.th}>Usuário</th>
-                  <th style={styles.th}>Detalhes</th>
+                  <th style={styles.th}>Resumo</th>
                 </tr>
               </thead>
               <tbody>
                 {logs.map((log) => (
                   <tr key={log._id}>
                     <td style={styles.td}>{new Date(log.createdAt).toLocaleString('pt-BR')}</td>
-                    <td style={styles.td}><strong>{log.action}</strong></td>
+                    <td style={styles.td}><strong>{getActionSummary(log)}</strong></td>
                     <td style={styles.td}>{log.entityType}{log.entityId ? ` / ${log.entityId}` : ''}</td>
                     <td style={styles.td}>{log.actorEmail || 'system'}</td>
-                    <td style={styles.tdDetails}>
-                      <pre style={styles.pre}>{formatDetails(log.details)}</pre>
-                    </td>
+                    <td style={styles.tdDetails}>{getLogSummary(log)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -246,16 +272,8 @@ const styles = {
   tdDetails: {
     padding: '14px 16px',
     borderTop: '1px solid #e5e7eb',
-    verticalAlign: 'top'
-  },
-  pre: {
-    margin: 0,
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    fontSize: '12px',
-    backgroundColor: '#f9fafb',
-    padding: '10px',
-    borderRadius: '8px',
+    verticalAlign: 'top',
+    color: '#374151',
     maxWidth: '420px'
   },
   emptyState: {

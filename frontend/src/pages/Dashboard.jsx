@@ -90,7 +90,7 @@ const Dashboard = () => {
             </Link>
 
             <Link to="/minha-conta" style={styles.mainCard}>
-              <div style={styles.icon}>🙍</div>
+              <div style={styles.icon}>🪪</div>
               <div style={styles.cardText}>
                 <h3>Minha Conta</h3>
                 <p>Editar perfil e acompanhar protocolos</p>

@@ -233,34 +233,34 @@ const PaymentRules = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#f8f9fa' },
+  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
   header: { 
     display: 'flex', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
     padding: '20px 40px', 
-    backgroundColor: '#fff', 
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)' 
+    backgroundColor: '#171718', 
+    boxShadow: '0 2px 10px rgba(212,175,55,0.15)' 
   },
-  logo: { color: '#1a73e8', margin: 0, fontSize: '24px' },
+  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
-  userProfile: { color: '#666', display: 'flex', alignItems: 'center', gap: '10px' },
-  adminBadge: { backgroundColor: '#ff9800', color: '#fff', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
+  userProfile: { color: '#f5deb3', display: 'flex', alignItems: 'center', gap: '10px' },
+  adminBadge: { backgroundColor: '#d4af37', color: '#141414', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
   backBtn: {
     padding: '10px 16px',
-    backgroundColor: '#1a73e8',
-    color: '#fff',
-    border: 'none',
+    backgroundColor: '#232323',
+    color: '#d4af37',
+    border: '1px solid #8a6f2a',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
     fontSize: '14px',
   },
   main: { padding: '40px', maxWidth: '1200px', margin: '0 auto' },
-  titleSection: { marginBottom: '24px' },
+  titleSection: { marginBottom: '24px', color: '#f5deb3' },
   successMessage: { 
-    backgroundColor: '#e8f5e9', 
-    color: '#2e7d32', 
+    backgroundColor: '#122515', 
+    color: '#8fcd99', 
     padding: '15px', 
     borderRadius: '8px', 
     marginBottom: '20px',
@@ -273,11 +273,12 @@ const styles = {
     marginBottom: '40px'
   },
   ruleCard: { 
-    backgroundColor: '#fff', 
+    backgroundColor: '#181819', 
+    color: '#f5deb3',
     padding: '25px', 
     borderRadius: '12px', 
-    boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
-    border: '2px solid #e0e0e0',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
+    border: '1px solid #5f4b1c',
     display: 'flex',
     flexDirection: 'column',
     minHeight: '320px',
@@ -292,15 +293,17 @@ const styles = {
   input: { 
     padding: '10px', 
     borderRadius: '8px', 
-    border: '1px solid #ddd', 
-    fontSize: '14px'
+    border: '1px solid #6f5a22', 
+    fontSize: '14px',
+    backgroundColor: '#1f1f20',
+    color: '#f5deb3'
   },
   buttonGroup: { display: 'flex', gap: '10px' },
   saveBtn: { 
     flex: 1,
     padding: '10px', 
-    backgroundColor: '#4caf50', 
-    color: '#fff', 
+    backgroundColor: '#d4af37', 
+    color: '#141414', 
     border: 'none', 
     borderRadius: '8px', 
     cursor: 'pointer', 
@@ -309,9 +312,9 @@ const styles = {
   cancelBtn: { 
     flex: 1,
     padding: '10px', 
-    backgroundColor: '#f44336', 
-    color: '#fff', 
-    border: 'none', 
+    backgroundColor: '#232323', 
+    color: '#f5deb3', 
+    border: '1px solid #6f5a22', 
     borderRadius: '8px', 
     cursor: 'pointer', 
     fontWeight: 'bold'
@@ -320,8 +323,8 @@ const styles = {
     width: '100%',
     marginTop: 'auto',
     padding: '10px', 
-    backgroundColor: '#1a73e8', 
-    color: '#fff', 
+    backgroundColor: '#d4af37', 
+    color: '#141414', 
     border: 'none', 
     borderRadius: '8px', 
     cursor: 'pointer', 
@@ -336,10 +339,10 @@ const styles = {
   },
   cardObs: {
     margin: '0',
-    color: '#475569',
+    color: '#b8a36a',
     fontSize: '13px',
   },
-  taxaValue: { color: '#1a73e8', fontWeight: 'bold', fontSize: '16px' }
+  taxaValue: { color: '#d4af37', fontWeight: 'bold', fontSize: '16px' }
 };
 
 export default PaymentRules;

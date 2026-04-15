@@ -193,22 +193,22 @@ const AuditLogs = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#f0f2f5' },
+  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '20px 40px',
-    backgroundColor: '#fff',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+    backgroundColor: '#171718',
+    boxShadow: '0 2px 10px rgba(212,175,55,0.15)'
   },
-  logo: { color: '#1a73e8', margin: 0, fontSize: '24px' },
+  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
   backBtn: {
     padding: '10px 16px',
-    backgroundColor: '#1a73e8',
-    color: '#fff',
-    border: 'none',
+    backgroundColor: '#232323',
+    color: '#d4af37',
+    border: '1px solid #8a6f2a',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
@@ -216,8 +216,8 @@ const styles = {
   },
   main: { padding: '40px', maxWidth: '1200px', margin: '0 auto' },
   topSection: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '20px' },
-  pageTitle: { margin: 0, color: '#1f2937' },
-  subtitle: { margin: '6px 0 0 0', color: '#6b7280' },
+  pageTitle: { margin: 0, color: '#f5deb3' },
+  subtitle: { margin: '6px 0 0 0', color: '#b8a36a' },
   dashboardLink: {
     padding: '10px 16px',
     borderRadius: '8px',
@@ -230,58 +230,62 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     gap: '16px',
-    backgroundColor: '#fff',
+    backgroundColor: '#181819',
     padding: '20px',
     borderRadius: '12px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
+    border: '1px solid #5f4b1c',
     marginBottom: '20px'
   },
-  filterGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  filterGroup: { display: 'flex', flexDirection: 'column', gap: '8px', color: '#f5deb3' },
   input: {
     padding: '10px 12px',
-    border: '1px solid #d1d5db',
+    border: '1px solid #6f5a22',
     borderRadius: '8px',
-    fontSize: '14px'
+    fontSize: '14px',
+    backgroundColor: '#1f1f20',
+    color: '#f5deb3'
   },
   error: {
-    backgroundColor: '#ffebee',
-    color: '#c62828',
+    backgroundColor: '#2d1314',
+    color: '#f39ca2',
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '20px'
   },
   tableWrap: {
-    backgroundColor: '#fff',
+    backgroundColor: '#181819',
     borderRadius: '12px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
+    border: '1px solid #5f4b1c',
     overflowX: 'auto'
   },
   table: { width: '100%', borderCollapse: 'collapse', minWidth: '900px' },
   th: {
     textAlign: 'left',
     padding: '14px 16px',
-    backgroundColor: '#f3f4f6',
-    color: '#374151',
+    backgroundColor: '#1f1f20',
+    color: '#d4af37',
     fontSize: '13px'
   },
   td: {
     padding: '14px 16px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: '1px solid #2a2a2a',
     verticalAlign: 'top',
     fontSize: '14px',
-    color: '#111827'
+    color: '#f5deb3'
   },
   tdDetails: {
     padding: '14px 16px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: '1px solid #2a2a2a',
     verticalAlign: 'top',
-    color: '#374151',
+    color: '#b8a36a',
     maxWidth: '420px'
   },
   emptyState: {
     padding: '30px',
     textAlign: 'center',
-    color: '#6b7280'
+    color: '#b8a36a'
   }
 };
 

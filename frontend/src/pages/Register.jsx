@@ -18,6 +18,13 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 980);
+
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 980);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const loadUsers = React.useCallback(async () => {
     if (!token || !isAdmin) {
@@ -203,7 +210,7 @@ const Register = () => {
           </button>
         </div>
       </header>
-      <div style={styles.wideCard}>
+      <div style={styles.wideCard(isMobile)}>
         <h1 style={styles.title}>AutoPlan</h1>
         <h2 style={styles.subtitle}>Gerenciar Usuários</h2>
         <p style={styles.adminOnly}>CRUD de usuários: criar, visualizar, editar e excluir</p>
@@ -211,7 +218,7 @@ const Register = () => {
         {error && <div style={styles.error}>{error}</div>}
         {success && <div style={styles.success}>{success}</div>}
 
-        <div style={styles.layout}>
+        <div style={styles.layout(isMobile)}>
           <form onSubmit={handleSubmit} style={styles.form}>
             <h3>{editingUserId ? 'Editar usuário' : 'Criar usuário'}</h3>
 
@@ -336,60 +343,64 @@ const Register = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#f0f2f5' },
+  container: { minHeight: '100vh', backgroundColor: '#0f0f10' },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '20px 40px',
-    backgroundColor: '#fff',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+    backgroundColor: '#171718',
+    boxShadow: '0 2px 10px rgba(212,175,55,0.15)'
   },
-  logo: { color: '#1a73e8', margin: 0, fontSize: '24px' },
+  logo: { color: '#d4af37', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
   card: { 
-    backgroundColor: '#fff', 
+    backgroundColor: '#181819', 
     padding: '40px', 
     borderRadius: '15px', 
-    boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
+    boxShadow: '0 10px 25px rgba(0,0,0,0.35)', 
+    border: '1px solid #5f4b1c',
     width: '100%', 
     maxWidth: '400px',
     textAlign: 'center',
     margin: '40px auto',
+    color: '#f5deb3',
   },
-  wideCard: {
-    backgroundColor: '#fff',
-    padding: '30px',
+  wideCard: (isMobile) => ({
+    backgroundColor: '#181819',
+    padding: isMobile ? '18px' : '30px',
     borderRadius: '15px',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.35)',
+    border: '1px solid #5f4b1c',
     width: '100%',
-    maxWidth: '980px',
-    margin: '40px auto',
-  },
+    maxWidth: '1100px',
+    margin: isMobile ? '20px auto' : '40px auto',
+    color: '#f5deb3',
+  }),
   title: { 
-    color: '#1a73e8', 
+    color: '#d4af37', 
     margin: '0 0 10px 0', 
     fontSize: '32px' 
   },
   subtitle: { 
-    color: '#666', 
+    color: '#f5deb3', 
     margin: '0 0 30px 0',
     fontSize: '24px'
   },
   form: { 
     display: 'flex', 
     flexDirection: 'column',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#121213',
     padding: '20px',
     borderRadius: '12px',
-    border: '1px solid #e5e7eb',
+    border: '1px solid #5f4b1c',
   },
-  layout: {
+  layout: (isMobile) => ({
     display: 'grid',
-    gridTemplateColumns: '320px 1fr',
+    gridTemplateColumns: isMobile ? '1fr' : '340px 1fr',
     gap: '20px',
     alignItems: 'start',
-  },
+  }),
   formGroup: { 
     marginBottom: '20px', 
     display: 'flex', 
@@ -399,15 +410,16 @@ const styles = {
   input: { 
     padding: '12px', 
     borderRadius: '8px', 
-    border: '1px solid #ddd', 
+    border: '1px solid #6f5a22', 
     fontSize: '16px',
     marginTop: '8px',
-    backgroundColor: '#fff',
+    backgroundColor: '#1f1f20',
+    color: '#f5deb3',
   },
   registerBtn: { 
     padding: '12px', 
-    backgroundColor: '#1a73e8', 
-    color: '#fff', 
+    backgroundColor: '#d4af37', 
+    color: '#141414', 
     border: 'none', 
     borderRadius: '8px', 
     cursor: 'pointer', 
@@ -417,9 +429,9 @@ const styles = {
   },
   cancelBtn: {
     padding: '12px',
-    backgroundColor: '#9ca3af',
-    color: '#fff',
-    border: 'none',
+    backgroundColor: '#232323',
+    color: '#f5deb3',
+    border: '1px solid #6f5a22',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
@@ -430,16 +442,16 @@ const styles = {
     gap: '10px',
   },
   error: { 
-    backgroundColor: '#ffebee', 
-    color: '#c62828', 
+    backgroundColor: '#2d1314', 
+    color: '#f39ca2', 
     padding: '12px', 
     borderRadius: '8px', 
     marginBottom: '20px',
     fontSize: '14px',
   },
   success: {
-    backgroundColor: '#e8f5e9',
-    color: '#2e7d32',
+    backgroundColor: '#122515',
+    color: '#8fcd99',
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '20px',
@@ -447,29 +459,29 @@ const styles = {
   },
   backBtn: {
     padding: '10px 16px',
-    backgroundColor: '#1a73e8',
-    color: '#fff',
-    border: 'none',
+    backgroundColor: '#232323',
+    color: '#d4af37',
+    border: '1px solid #8a6f2a',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: 'bold',
     fontSize: '14px',
   },
   adminOnly: {
-    color: '#ff9800',
-    backgroundColor: '#fff3e0',
+    color: '#f2cc72',
+    backgroundColor: '#2b2110',
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '20px',
     fontSize: '14px',
   },
   listPanel: {
-    backgroundColor: '#fff',
+    backgroundColor: '#181819',
     padding: '10px 0',
   },
   tableWrap: {
     overflowX: 'auto',
-    border: '1px solid #e5e7eb',
+    border: '1px solid #5f4b1c',
     borderRadius: '12px',
   },
   table: {
@@ -479,37 +491,37 @@ const styles = {
   },
   th: {
     textAlign: 'left',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#1f1f20',
     padding: '12px',
     fontSize: '13px',
-    color: '#374151',
+    color: '#d4af37',
   },
   td: {
     padding: '12px',
-    borderTop: '1px solid #f3f4f6',
-    color: '#1f2937',
+    borderTop: '1px solid #2a2a2a',
+    color: '#f5deb3',
     fontSize: '14px',
   },
   tdActions: {
     padding: '12px',
-    borderTop: '1px solid #f3f4f6',
+    borderTop: '1px solid #2a2a2a',
     display: 'flex',
     gap: '8px',
   },
   editBtn: {
     padding: '8px 12px',
-    border: 'none',
+    border: '1px solid #8a6f2a',
     borderRadius: '8px',
-    backgroundColor: '#1a73e8',
-    color: '#fff',
+    backgroundColor: '#d4af37',
+    color: '#141414',
     cursor: 'pointer',
   },
   deleteBtn: {
     padding: '8px 12px',
-    border: 'none',
+    border: '1px solid #6a1b1f',
     borderRadius: '8px',
-    backgroundColor: '#f44336',
-    color: '#fff',
+    backgroundColor: '#2b1517',
+    color: '#f39ca2',
     cursor: 'pointer',
   },
 };

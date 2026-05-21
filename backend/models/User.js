@@ -2,21 +2,25 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
+  // Email único para login
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
   },
+  // CPF opcional, único por usuário
   cpf: {
     type: String,
     unique: true,
     sparse: true,
   },
+  // Senha (criptografada)
   password: {
     type: String,
     required: true,
   },
+  // Perfil: 'admin' ou 'user'
   role: {
     type: String,
     enum: ['admin', 'user'],

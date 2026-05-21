@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Simulador = () => {
   const navigate = useNavigate();
   
+  // Regras de cálculo para cada método de pagamento
   const REGRAS = {
     pix: { nome: 'PIX (10% OFF)', taxa: -0.10 },
     boleto: { nome: 'Boleto (5% Taxa)', taxa: 0.05 },
@@ -16,6 +17,7 @@ const Simulador = () => {
   const [parcelas, setParcelas] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // Calcular valor final com taxas
   useEffect(() => {
     const valor = parseFloat(precoBase) || 0;
     let calc = 0;
@@ -29,6 +31,7 @@ const Simulador = () => {
     setTotal(calc);
   }, [precoBase, metodo, parcelas]);
 
+  // Salvar protocolo no backend
   const saveProtocol = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -62,7 +65,6 @@ const Simulador = () => {
       
       if (response.ok) {
         alert(`Protocolo ${data.protocolId} salvo com sucesso!`);
-        // Limpar formulário
         setNomeCliente('');
         setPrecoBase('');
         setMetodo('pix');

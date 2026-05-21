@@ -12,11 +12,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Configurar middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
+// Conectar ao MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -24,13 +24,13 @@ mongoose.connect(process.env.MONGODB_URI, {
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));
 
-// Routes
+// Registrar rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/protocols', protocolRoutes);
 app.use('/api/paymentRules', paymentRulesRoutes);
 app.use('/api/audit-logs', auditLogsRoutes);
 
-// Health check
+// Health check do servidor
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'AutoPlan API is running' });
 });

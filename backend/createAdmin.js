@@ -12,14 +12,12 @@ const createAdmin = async () => {
     const adminEmail = 'admin@autoplan.com';
     const adminPassword = 'admin123';
 
-    // Check if admin already exists
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (existingAdmin) {
       console.log('Admin já existe');
       process.exit(0);
     }
 
-    // Create admin user
     const admin = new User({
       email: adminEmail,
       password: adminPassword,

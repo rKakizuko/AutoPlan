@@ -1,12 +1,11 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import Protocol from '../models/Protocol.js';
 import User from '../models/User.js';
-import { createAuditLog } from '../utils/audit.js';
+import ProtocolService from '../services/ProtocolService.js';
 
 const router = express.Router();
 
-// Middleware to verify JWT
+// Verificar e validar JWT no header Authorization
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
@@ -35,140 +34,71 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Create protocol
 router.post('/', verifyToken, async (req, res) => {
   try {
     const { cliente, precoBase, metodo, parcelas, total } = req.body;
-    const actor = await User.findById(req.userId);
-    
-    const protocolId = `PROTO-${Date.now()}`;
-    
-    // Criar array de pagamentos
-    const numParcelas = parcelas || 1;
-    const parcelaValue = total / numParcelas;
-    const payments = [];
-    for (let i = 1; i <= numParcelas; i++) {
-      payments.push({
-        parcelaNumero: i,
-        valor: parcelaValue,
-        pago: false
-      });
-    }
-    
-    const protocol = new Protocol({
-      protocolId,
-      userId: req.userId,
+    const protocol = await ProtocolService.create(
+      req.userId,
       cliente,
       precoBase,
       metodo,
-      parcelas: numParcelas,
-      total,
-      payments
-    });
-
-    await protocol.save();
-    await createAuditLog({
-      action: 'protocol_created',
-      entityType: 'protocol',
-      entityId: protocol._id.toString(),
-      actorId: actor?._id || null,
-      actorEmail: actor?.email || 'system',
-      details: {
-        protocolId,
-        cliente,
-        precoBase,
-        metodo,
-        parcelas: numParcelas,
-        total,
-      },
-    });
+      parcelas,
+      total
+    );
     res.status(201).json(protocol);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
-
-// Get all protocols for authenticated users
+// Criar novo protocolo de pagamento// Listar protocolos (admin vê todos, usuário vê seus)
 router.get('/', verifyToken, async (req, res) => {
   try {
     const actor = await User.findById(req.userId);
     const isAdmin = actor?.role === 'admin';
-    const filter = isAdmin ? {} : { userId: req.userId };
-
-    const protocols = await Protocol.find(filter).sort({ createdAt: -1 });
+    const protocols = await ProtocolService.getAll(req.userId, isAdmin);
     res.json(protocols);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Get single protocol
+// Obter detalhes de um protocolo específico
 router.get('/:id', verifyToken, async (req, res) => {
   try {
     const actor = await User.findById(req.userId);
     const isAdmin = actor?.role === 'admin';
-
-    const protocol = await Protocol.findById(req.params.id);
-    
-    if (!protocol) {
-      return res.status(404).json({ message: 'Protocol not found' });
-    }
-
-    if (!isAdmin && protocol.userId.toString() !== req.userId.toString()) {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
-
+    const protocol = await ProtocolService.getById(req.params.id, req.userId, isAdmin);
     res.json(protocol);
   } catch (err) {
+    if (err.message === 'Not authorized') {
+      return res.status(403).json({ message: err.message });
+    }
+    if (err.message === 'Protocol not found') {
+      return res.status(404).json({ message: err.message });
+    }
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Update payment status
+// Atualizar status de pagamento de uma parcela
 router.patch('/:id/payment', verifyToken, async (req, res) => {
   try {
     const { parcelaNumero, pago, dataPagamento } = req.body;
-    
-    const protocol = await Protocol.findById(req.params.id);
-    
-    if (!protocol) {
-      return res.status(404).json({ message: 'Protocol not found' });
-    }
-
-    if (protocol.userId.toString() !== req.userId.toString()) {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
-
-    // Encontrar e atualizar a parcela
-    const payment = protocol.payments.find(p => p.parcelaNumero === parcelaNumero);
-    if (!payment) {
-      return res.status(404).json({ message: 'Payment not found' });
-    }
-
-    payment.pago = pago;
-    if (pago) {
-      payment.dataPagamento = dataPagamento || new Date();
-    } else {
-      payment.dataPagamento = null;
-    }
-
-    await protocol.save();
-    const actor = await User.findById(req.userId);
-    await createAuditLog({
-      action: 'protocol_payment_updated',
-      entityType: 'protocol_payment',
-      entityId: protocol._id.toString(),
-      actorId: actor?._id || null,
-      actorEmail: actor?.email || 'system',
-      details: {
-        protocolId: protocol.protocolId,
-        parcelaNumero,
-        pago,
-        dataPagamento: payment.dataPagamento,
-      },
-    });
+    const protocol = await ProtocolService.updatePaymentStatus(
+      req.params.id,
+      req.userId,
+      parcelaNumero,
+      pago,
+      dataPagamento
+    );
     res.json(protocol);
   } catch (err) {
+    if (err.message === 'Not authorized') {
+      return res.status(403).json({ message: err.message });
+    }
+    if (err.message === 'Protocol not found' || err.message === 'Payment not found') {
+      return res.status(404).json({ message: err.message });
+    }
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });

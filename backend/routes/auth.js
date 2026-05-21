@@ -1,15 +1,11 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { createAuditLog } from '../utils/audit.js';
+import UserService from '../services/UserService.js';
 
 const router = express.Router();
 
-const normalizeCpf = (value = '') => value.replace(/\D/g, '');
-
-const isValidCpfFormat = (value = '') => /^\d{11}$/.test(value);
-
-// Middleware to verify JWT
+// Verificar e validar JWT no header Authorization
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
@@ -38,7 +34,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Middleware to require admin role
+// Verificar se usuário tem permissão de admin
 const requireAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
@@ -51,343 +47,87 @@ const requireAdmin = async (req, res, next) => {
   }
 };
 
-// Register
+// Registro de novo usuário
 router.post('/register', async (req, res) => {
   try {
     const { email, password, cpf } = req.body;
-    const normalizedCpf = normalizeCpf(cpf || '');
-
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password required' });
-    }
-
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      return res.status(400).json({ message: 'CPF must have 11 digits' });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    if (normalizedCpf) {
-      const existingCpf = await User.findOne({ cpf: normalizedCpf });
-      if (existingCpf) {
-        return res.status(400).json({ message: 'CPF already in use' });
-      }
-    }
-
-    const user = new User({
-      email,
-      password,
-      cpf: normalizedCpf || undefined,
-      role: 'user',
-    });
-    await user.save();
-    await createAuditLog({
-      action: 'user_registered',
-      entityType: 'user',
-      entityId: user._id.toString(),
-      actorEmail: user.email,
-      details: { email: user.email, cpf: user.cpf, role: user.role },
-    });
-
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    res.status(201).json({ token, user: { id: user._id, email: user.email, cpf: user.cpf, role: user.role } });
+    const result = await UserService.register(email, password, cpf);
+    res.status(201).json(result);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(400).json({ message: err.message });
   }
 });
 
-// Login
+// Autenticação de usuário (gerar token JWT)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password required' });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    await createAuditLog({
-      action: 'user_logged_in',
-      entityType: 'auth',
-      entityId: user._id.toString(),
-      actorId: user._id,
-      actorEmail: user.email,
-      details: { email: user.email, role: user.role },
-    });
-
-    res.json({ token, user: { id: user._id, email: user.email, cpf: user.cpf, role: user.role } });
+    const result = await UserService.login(email, password);
+    res.json(result);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(400).json({ message: err.message });
   }
 });
 
-// Get own profile
+// Obter perfil do usuário autenticado
 router.get('/me', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId, '-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json({
-      id: user._id,
-      email: user.email,
-      cpf: user.cpf,
-      role: user.role,
-      createdAt: user.createdAt,
-    });
+    const user = await UserService.getProfile(req.userId);
+    res.json(user);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(404).json({ message: err.message });
   }
 });
 
-// Update own profile
+// Atualizar dados do próprio perfil
 router.put('/me', verifyToken, async (req, res) => {
   try {
     const { email, cpf, password } = req.body;
-    const normalizedCpf = normalizeCpf(cpf || '');
-
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
-    }
-
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      return res.status(400).json({ message: 'CPF must have 11 digits' });
-    }
-
-    if (password && password.length < 6) {
-      return res.status(400).json({ message: 'Password must have at least 6 characters' });
-    }
-
-    const user = await User.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const emailInUse = await User.findOne({ email, _id: { $ne: req.userId } });
-    if (emailInUse) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
-
-    if (normalizedCpf) {
-      const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: req.userId } });
-      if (cpfInUse) {
-        return res.status(400).json({ message: 'CPF already in use' });
-      }
-    }
-
-    user.email = email;
-    user.cpf = normalizedCpf || undefined;
-    if (password) {
-      user.password = password;
-    }
-
-    await user.save();
-
-    await createAuditLog({
-      action: 'user_profile_updated',
-      entityType: 'user',
-      entityId: user._id.toString(),
-      actorId: user._id,
-      actorEmail: user.email,
-      details: { email: user.email, cpf: user.cpf },
-    });
-
-    res.json({
-      id: user._id,
-      email: user.email,
-      cpf: user.cpf,
-      role: user.role,
-      createdAt: user.createdAt,
-    });
+    const user = await UserService.updateProfile(req.userId, email, cpf, password);
+    res.json(user);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(400).json({ message: err.message });
   }
 });
 
-// List users (admin only)
+// Listar todos os usuários (apenas admin)
 router.get('/users', verifyToken, requireAdmin, async (req, res) => {
   try {
-    const users = await User.find({}, '-password').sort({ createdAt: -1 });
+    const users = await UserService.listUsers();
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Create user (admin only)
+// Criar novo usuário (apenas admin)
 router.post('/users', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { email, password, role, cpf } = req.body;
-    const normalizedCpf = normalizeCpf(cpf || '');
-
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password required' });
-    }
-
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      return res.status(400).json({ message: 'CPF must have 11 digits' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must have at least 6 characters' });
-    }
-
-    if (role && !['admin', 'user'].includes(role)) {
-      return res.status(400).json({ message: 'Invalid role' });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    if (normalizedCpf) {
-      const existingCpf = await User.findOne({ cpf: normalizedCpf });
-      if (existingCpf) {
-        return res.status(400).json({ message: 'CPF already in use' });
-      }
-    }
-
-    const user = new User({
-      email,
-      password,
-      cpf: normalizedCpf || undefined,
-      role: role || 'user',
-    });
-    await user.save();
-    await createAuditLog({
-      action: 'user_created',
-      entityType: 'user',
-      entityId: user._id.toString(),
-      actorId: req.userId,
-      actorEmail: (await User.findById(req.userId))?.email || 'system',
-      details: { email: user.email, cpf: user.cpf, role: user.role },
-    });
-
-    res.status(201).json({
-      id: user._id,
-      email: user.email,
-      cpf: user.cpf,
-      role: user.role,
-      createdAt: user.createdAt,
-    });
+    const user = await UserService.createUser(email, password, role, cpf, req.userId);
+    res.status(201).json(user);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(400).json({ message: err.message });
   }
 });
 
-// Update user (admin only)
+// Editar dados de usuário (apenas admin)
 router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
-    const { email, password, role, cpf } = req.body;
-    const normalizedCpf = normalizeCpf(cpf || '');
-
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
-    }
-
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      return res.status(400).json({ message: 'CPF must have 11 digits' });
-    }
-
-    if (role && !['admin', 'user'].includes(role)) {
-      return res.status(400).json({ message: 'Invalid role' });
-    }
-
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const emailInUse = await User.findOne({ email, _id: { $ne: req.params.id } });
-    if (emailInUse) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
-
-    if (normalizedCpf) {
-      const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: req.params.id } });
-      if (cpfInUse) {
-        return res.status(400).json({ message: 'CPF already in use' });
-      }
-    }
-
-    user.email = email;
-    user.cpf = normalizedCpf || undefined;
-    user.role = role || user.role;
-
-    if (password) {
-      if (password.length < 6) {
-        return res.status(400).json({ message: 'Password must have at least 6 characters' });
-      }
-      user.password = password;
-    }
-
-    await user.save();
-    await createAuditLog({
-      action: 'user_updated',
-      entityType: 'user',
-      entityId: user._id.toString(),
-      actorId: req.userId,
-      actorEmail: (await User.findById(req.userId))?.email || 'system',
-      details: { email: user.email, cpf: user.cpf, role: user.role },
-    });
-
-    res.json({
-      id: user._id,
-      email: user.email,
-      cpf: user.cpf,
-      role: user.role,
-      createdAt: user.createdAt,
-    });
+    const user = await UserService.updateUser(req.params.id, req.body, req.userId);
+    res.json(user);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(400).json({ message: err.message });
   }
 });
 
-// Delete user (admin only)
+// Deletar usuário (apenas admin)
 router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
-    if (req.userId.toString() === req.params.id.toString()) {
-      return res.status(400).json({ message: 'You cannot delete your own user' });
-    }
-
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    await createAuditLog({
-      action: 'user_deleted',
-      entityType: 'user',
-      entityId: deletedUser._id.toString(),
-      actorId: req.userId,
-      actorEmail: (await User.findById(req.userId))?.email || 'system',
-      details: { email: deletedUser.email, cpf: deletedUser.cpf, role: deletedUser.role },
-    });
-
+    await UserService.deleteUser(req.params.id, req.userId);
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(400).json({ message: err.message });
   }
 });
 

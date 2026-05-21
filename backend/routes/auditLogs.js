@@ -1,10 +1,11 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import AuditLog from '../models/AuditLog.js';
 import User from '../models/User.js';
+import AuditService from '../services/AuditService.js';
 
 const router = express.Router();
 
+// Verificar JWT
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
@@ -30,6 +31,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Filtrar e verificar permissão de admin
 const requireAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
@@ -45,16 +47,13 @@ const requireAdmin = async (req, res, next) => {
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { action, entityType, actorEmail, limit = 100 } = req.query;
-    const filter = {};
+    const filters = {};
 
-    if (action) filter.action = action;
-    if (entityType) filter.entityType = entityType;
-    if (actorEmail) filter.actorEmail = new RegExp(actorEmail, 'i');
+    if (action) filters.action = action;
+    if (entityType) filters.entityType = entityType;
+    if (actorEmail) filters.actorEmail = actorEmail;
 
-    const logs = await AuditLog.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(Math.min(Number(limit) || 100, 200));
-
+    const logs = await AuditService.query(filters, limit);
     res.json(logs);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

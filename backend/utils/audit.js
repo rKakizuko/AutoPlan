@@ -1,5 +1,6 @@
 import AuditLog from '../models/AuditLog.js';
 
+// Registrar uma ação do usuário no log de auditoria
 export const createAuditLog = async ({ action, entityType, entityId = null, actorId = null, actorEmail = 'system', details = {} }) => {
   try {
     await AuditLog.create({

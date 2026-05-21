@@ -6,11 +6,13 @@ const AuditLogs = () => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const token = localStorage.getItem('token');
 
+  // Lista de logs de auditoria
   const [logs, setLogs] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
   const [filters, setFilters] = React.useState({ action: '', entityType: '', actorEmail: '' });
 
+  // Buscar logs com filtros
   React.useEffect(() => {
     const fetchLogs = async () => {
       if (!token || user?.role !== 'admin') {

@@ -1,5 +1,9 @@
 {
+  "type": "module",
   "dependencies": {
     "react-router-dom": "^7.13.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
   }
 }

@@ -1,12 +1,11 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import PaymentRules from '../models/PaymentRules.js';
 import User from '../models/User.js';
-import { createAuditLog } from '../utils/audit.js';
+import PaymentRulesService from '../services/PaymentRulesService.js';
 
 const router = express.Router();
 
-// Middleware to verify JWT
+// Verificar e validar JWT
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
@@ -35,47 +34,18 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Get payment rules
 router.get('/', verifyToken, async (req, res) => {
   try {
-    let rules = await PaymentRules.findOne();
-    if (!rules) {
-      rules = new PaymentRules();
-      await rules.save();
-    }
+    const rules = await PaymentRulesService.get();
     res.json(rules);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
-
-// Update payment rules
+// Obter regras de pagamento atuais// Atualizar regras de pagamento (PIX, Boleto, Cartão)
 router.post('/', verifyToken, async (req, res) => {
   try {
-    const actor = await User.findById(req.userId);
-    let rules = await PaymentRules.findOne();
-    const previousRules = rules ? rules.toObject() : null;
-    if (!rules) {
-      rules = new PaymentRules(req.body);
-    } else {
-      rules.pix = req.body.pix || rules.pix;
-      rules.boleto = req.body.boleto || rules.boleto;
-      rules.cartao = req.body.cartao || rules.cartao;
-    }
-    await rules.save();
-
-    await createAuditLog({
-      action: previousRules ? 'payment_rules_updated' : 'payment_rules_created',
-      entityType: 'payment_rules',
-      entityId: rules._id.toString(),
-      actorId: actor?._id || null,
-      actorEmail: actor?.email || 'system',
-      details: {
-        previousRules,
-        updatedRules: rules.toObject(),
-      },
-    });
-
+    const rules = await PaymentRulesService.update(req.body, req.userId);
     res.json(rules);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

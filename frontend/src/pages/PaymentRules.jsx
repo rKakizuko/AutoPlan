@@ -6,6 +6,7 @@ const PaymentRules = () => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const token = localStorage.getItem('token');
 
+  // Verificar se é admin
   if (!user || user.role !== 'admin') {
     navigate('/');
     return null;
@@ -21,6 +22,7 @@ const PaymentRules = () => {
   const [formData, setFormData] = useState({});
   const [message, setMessage] = useState('');
 
+  // Buscar regras de pagamento do backend
   useEffect(() => {
     const fetchRules = async () => {
       if (!token) return;
@@ -37,17 +39,19 @@ const PaymentRules = () => {
           });
         }
       } catch (err) {
-        // erro ao buscar regras
+        setMessage('Erro ao conectar ao servidor.');
       }
     };
     fetchRules();
   }, [token]);
 
+  // Ativar modo edição para uma regra
   const handleEditRule = (ruleKey) => {
     setEditingRule(ruleKey);
     setFormData({ ...rules[ruleKey] });
   };
 
+  // Salvar mudanças em uma regra de pagamento
   const handleSaveRule = async () => {
     if (!editingRule) return;
 
@@ -105,7 +109,6 @@ const PaymentRules = () => {
         {message && <div style={styles.successMessage}>{message}</div>}
 
         <div style={styles.rulesGrid}>
-          {/* PIX */}
           <div style={styles.ruleCard}>
             <h3>💳 PIX</h3>
             {editingRule === 'pix' ? (
@@ -139,7 +142,6 @@ const PaymentRules = () => {
             )}
           </div>
 
-          {/* BOLETO */}
           <div style={styles.ruleCard}>
             <h3>📄 BOLETO</h3>
             {editingRule === 'boleto' ? (
@@ -182,7 +184,6 @@ const PaymentRules = () => {
             )}
           </div>
 
-          {/* CARTÃO */}
           <div style={styles.ruleCard}>
             <h3>🛒 CARTÃO DE CRÉDITO</h3>
             {editingRule === 'cartao' ? (

@@ -4,8 +4,10 @@ import { ensureLocalPreviewProtocol } from '../localPreviewProtocol';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  // Dados do usuário autenticado
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = user && user.role === 'admin';
+  // Lista de protocolos para exibir
   const [protocols, setProtocols] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 980);
@@ -59,6 +61,7 @@ const Dashboard = () => {
     fetchProtocols();
   }, [navigate]);
 
+  // Fazer logout
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -89,7 +92,6 @@ const Dashboard = () => {
 
         <div style={styles.grid(isMobile)}>
           <div style={styles.actionsGrid(isMobile)}>
-            {/* BOTÃO PARA O SIMULADOR */}
             <Link to="/simulador" style={styles.mainCard}>
               <div style={styles.icon}>➕</div>
               <div style={styles.cardText}>
@@ -106,7 +108,6 @@ const Dashboard = () => {
               </div>
             </Link>
 
-            {/* BOTÃO PARA GERENCIAR USUÁRIOS (APENAS PARA ADMIN) */}
             {isAdmin && (
               <Link to="/users" style={styles.mainCard}>
                 <div style={styles.icon}>👥</div>
@@ -117,7 +118,6 @@ const Dashboard = () => {
               </Link>
             )}
 
-            {/* BOTÃO PARA CONFIGURAR REGRAS DE PAGAMENTO (APENAS PARA ADMIN) */}
             {isAdmin && (
               <Link to="/payment-rules" style={styles.mainCard}>
                 <div style={styles.icon}>⚙️</div>
@@ -128,7 +128,6 @@ const Dashboard = () => {
               </Link>
             )}
 
-            {/* BOTÃO PARA LOG DE ALTERAÇÕES (APENAS PARA ADMIN) */}
             {isAdmin && (
               <Link to="/audit-logs" style={styles.mainCard}>
                 <div style={styles.icon}>📝</div>

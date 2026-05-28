@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ensureLocalPreviewProtocol } from '../localPreviewProtocol';
+import { apiUrl } from '../utils/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Dashboard = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/protocols', {
+        const response = await fetch(apiUrl('/api/protocols'), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

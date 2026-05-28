@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getLocalPreviewProtocolById, LOCAL_PREVIEW_PROTOCOL_ID, toggleLocalPreviewPayment } from '../localPreviewProtocol';
+import { apiUrl } from '../utils/api';
 
 const ProtocolDetail = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const ProtocolDetail = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:5000/api/protocols/${protocolId}`, {
+        const response = await fetch(apiUrl(`/api/protocols/${protocolId}`), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -67,7 +68,7 @@ const ProtocolDetail = () => {
     setUpdatingPayment(parcelaNumero);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/protocols/${protocolId}/payment`, {
+      const response = await fetch(apiUrl(`/api/protocols/${protocolId}/payment`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

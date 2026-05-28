@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../utils/api';
 
 const Simulador = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const Simulador = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/protocols', {
+      const response = await fetch(apiUrl('/api/protocols'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

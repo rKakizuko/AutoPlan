@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiUrl } from '../utils/api';
 
 const AuditLogs = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const AuditLogs = () => {
       if (filters.actorEmail) query.set('actorEmail', filters.actorEmail);
 
       try {
-        const response = await fetch(`http://localhost:5000/api/audit-logs?${query.toString()}`, {
+        const response = await fetch(apiUrl(`/api/audit-logs?${query.toString()}`), {
           headers: { Authorization: `Bearer ${token}` },
         });
 

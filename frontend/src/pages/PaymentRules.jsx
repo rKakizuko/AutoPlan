@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../utils/api';
 
 const PaymentRules = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const PaymentRules = () => {
     const fetchRules = async () => {
       if (!token) return;
       try {
-        const response = await fetch('http://localhost:5000/api/paymentRules', {
+        const response = await fetch(apiUrl('/api/paymentRules'), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
@@ -63,7 +64,7 @@ const PaymentRules = () => {
     setRules(updatedRules);
 
     try {
-      const response = await fetch('http://localhost:5000/api/paymentRules', {
+      const response = await fetch(apiUrl('/api/paymentRules'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

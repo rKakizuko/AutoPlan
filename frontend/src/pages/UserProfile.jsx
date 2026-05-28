@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../utils/api';
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -43,10 +44,10 @@ const UserProfile = () => {
 
       try {
         const [profileResponse, protocolsResponse] = await Promise.all([
-          fetch('http://localhost:5000/api/auth/me', {
+          fetch(apiUrl('/api/auth/me'), {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch('http://localhost:5000/api/protocols', {
+          fetch(apiUrl('/api/protocols'), {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -136,7 +137,7 @@ const UserProfile = () => {
     setSaving(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/me', {
+      const response = await fetch(apiUrl('/api/auth/me'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

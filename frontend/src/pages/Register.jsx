@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../utils/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/users', {
+      const response = await fetch(apiUrl('/api/auth/users'), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -106,8 +107,8 @@ const Register = () => {
     }
 
     const url = editingUserId
-      ? `http://localhost:5000/api/auth/users/${editingUserId}`
-      : 'http://localhost:5000/api/auth/users';
+      ? apiUrl(`/api/auth/users/${editingUserId}`)
+      : apiUrl('/api/auth/users');
     const method = editingUserId ? 'PUT' : 'POST';
 
     const payload = { email, role, cpf: normalizedCpf };
@@ -166,7 +167,7 @@ const Register = () => {
     setError('');
     setSuccess('');
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/users/${userId}`, {
+      const response = await fetch(apiUrl(`/api/auth/users/${userId}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

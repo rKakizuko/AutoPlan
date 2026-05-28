@@ -14,3 +14,11 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Deploy
+
+Set `VITE_API_URL` to the public backend URL before building.
+
+For GitHub Pages, this app uses hash-based routing and a relative Vite base path, so the built files can be served from a Pages branch without extra SPA fallback rules.
+
+If you want automatic deployment, use the workflow in `.github/workflows/deploy-frontend.yml` and add a repository secret named `VITE_API_URL` with the public backend URL.

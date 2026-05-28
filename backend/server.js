@@ -12,8 +12,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 // Configurar middleware
-app.use(cors());
+app.use(cors(allowedOrigins.length > 0 ? { origin: allowedOrigins } : undefined));
 app.use(express.json());
 
 // Conectar ao MongoDB

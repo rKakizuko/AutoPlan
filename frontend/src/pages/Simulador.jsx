@@ -2,35 +2,73 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../utils/api';
 
+const DEFAULT_RULES = {
+  pix: { nome: 'PIX (10% OFF)', taxa: -0.10 },
+  boleto: { nome: 'Boleto (5% Taxa)', taxa: 0.05, parcelas: true },
+  cartao: { taxaOperadora: 0.04, jurosMensal: 0.0249, parcelas: true }
+};
+
 const Simulador = () => {
   const navigate = useNavigate();
-  
-  // Regras de cálculo para cada método de pagamento
-  const REGRAS = {
-    pix: { nome: 'PIX (10% OFF)', taxa: -0.10 },
-    boleto: { nome: 'Boleto (5% Taxa)', taxa: 0.05 },
-    cartao: { taxaOperadora: 0.04, jurosMensal: 0.0249 }
-  };
 
   const [precoBase, setPrecoBase] = useState('');
   const [nomeCliente, setNomeCliente] = useState('');
   const [metodo, setMetodo] = useState('pix');
   const [parcelas, setParcelas] = useState(1);
   const [total, setTotal] = useState(0);
+  const [rules, setRules] = useState(DEFAULT_RULES);
+  const [loadingRules, setLoadingRules] = useState(true);
+
+  useEffect(() => {
+    const fetchRules = async () => {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        setRules(DEFAULT_RULES);
+        setLoadingRules(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(apiUrl('/api/paymentRules'), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          setRules(DEFAULT_RULES);
+          return;
+        }
+
+        const data = await response.json();
+        setRules({
+          pix: { ...DEFAULT_RULES.pix, ...(data.pix || {}) },
+          boleto: { ...DEFAULT_RULES.boleto, ...(data.boleto || {}) },
+          cartao: { ...DEFAULT_RULES.cartao, ...(data.cartao || {}) },
+        });
+      } catch (err) {
+        console.error('Erro ao carregar regras de pagamento:', err);
+        setRules(DEFAULT_RULES);
+      } finally {
+        setLoadingRules(false);
+      }
+    };
+
+    fetchRules();
+  }, []);
 
   // Calcular valor final com taxas
   useEffect(() => {
     const valor = parseFloat(precoBase) || 0;
     let calc = 0;
 
-    if (metodo === 'pix') calc = valor * (1 + REGRAS.pix.taxa);
-    else if (metodo === 'boleto') calc = valor * (1 + REGRAS.boleto.taxa);
+    if (metodo === 'pix') calc = valor * (1 + (rules.pix?.taxa ?? DEFAULT_RULES.pix.taxa));
+    else if (metodo === 'boleto') calc = valor * (1 + (rules.boleto?.taxa ?? DEFAULT_RULES.boleto.taxa));
     else {
-      calc = valor * (1 + REGRAS.cartao.taxaOperadora);
-      if (parcelas >= 3) calc *= (1 + (REGRAS.cartao.jurosMensal * (parcelas - 2)));
+      calc = valor * (1 + (rules.cartao?.taxaOperadora ?? DEFAULT_RULES.cartao.taxaOperadora));
+      if (parcelas >= 3) calc *= (1 + ((rules.cartao?.jurosMensal ?? DEFAULT_RULES.cartao.jurosMensal) * (parcelas - 2)));
     }
     setTotal(calc);
-  }, [precoBase, metodo, parcelas]);
+  }, [precoBase, metodo, parcelas, rules]);
 
   // Salvar protocolo no backend
   const saveProtocol = async () => {
@@ -90,6 +128,9 @@ const Simulador = () => {
 
       <div style={styles.card}>
         <h2 style={styles.title}>Calculadora de Projeto</h2>
+        <p style={styles.ruleHint}>
+          {loadingRules ? 'Carregando regras de pagamento...' : 'Simulação calculada com as regras configuradas no sistema.'}
+        </p>
         
         <div style={styles.formGroup}>
           <label>Nome do Cliente</label>
@@ -169,6 +210,7 @@ const styles = {
     fontSize: '14px'
   },
   title: { margin: '0 0 20px 0', color: 'var(--app-accent)' },
+  ruleHint: { margin: '-8px 0 20px 0', color: 'var(--app-muted)', fontSize: '13px' },
   formGroup: { marginBottom: '15px', display: 'flex', flexDirection: 'column' },
   input: { padding: '10px', borderRadius: '8px', border: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface-2)', color: 'var(--app-text)' },
   inputHighlight: { padding: '15px', borderRadius: '8px', border: '2px solid var(--app-accent)', fontSize: '20px', fontWeight: 'bold', backgroundColor: 'var(--app-surface-2)', color: 'var(--app-text)' },

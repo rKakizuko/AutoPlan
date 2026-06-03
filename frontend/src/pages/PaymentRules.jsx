@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../utils/api';
 
+const decimalToPercentInt = (value) => Math.round((Number(value) || 0) * 100);
+const percentIntToDecimal = (value, fallback = 0) => {
+  if (value === '' || value === null || value === undefined) {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    return fallback;
+  }
+  return parsed / 100;
+};
+
 const PaymentRules = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -14,8 +27,8 @@ const PaymentRules = () => {
   }
 
   const [rules, setRules] = useState({
-    pix: { nome: 'PIX (10% OFF)', taxa: -0.10 },
-    boleto: { nome: 'Boleto (5% Taxa)', taxa: 0.05, parcelas: true },
+    pix: { nome: 'PIX', taxa: -0.10 },
+    boleto: { nome: 'Boleto', taxa: 0.05, parcelas: true },
     cartao: { taxaOperadora: 0.04, jurosMensal: 0.0249, parcelas: true }
   });
 
@@ -49,16 +62,64 @@ const PaymentRules = () => {
   // Ativar modo edição para uma regra
   const handleEditRule = (ruleKey) => {
     setEditingRule(ruleKey);
-    setFormData({ ...rules[ruleKey] });
+
+    if (ruleKey === 'pix') {
+      setFormData({
+        ...rules[ruleKey],
+        taxaPercent: decimalToPercentInt(rules[ruleKey].taxa),
+      });
+      return;
+    }
+
+    if (ruleKey === 'boleto') {
+      setFormData({
+        ...rules[ruleKey],
+        taxaPercent: decimalToPercentInt(rules[ruleKey].taxa),
+      });
+      return;
+    }
+
+    if (ruleKey === 'cartao') {
+      setFormData({
+        ...rules[ruleKey],
+        taxaOperadoraPercent: decimalToPercentInt(rules[ruleKey].taxaOperadora),
+        jurosMensalPercent: decimalToPercentInt(rules[ruleKey].jurosMensal),
+      });
+    }
   };
 
   // Salvar mudanças em uma regra de pagamento
   const handleSaveRule = async () => {
     if (!editingRule) return;
 
+    let normalizedRule = {};
+
+    if (editingRule === 'pix') {
+      normalizedRule = {
+        nome: formData.nome || rules.pix.nome,
+        taxa: percentIntToDecimal(formData.taxaPercent, rules.pix.taxa),
+      };
+    }
+
+    if (editingRule === 'boleto') {
+      normalizedRule = {
+        nome: formData.nome || rules.boleto.nome,
+        taxa: percentIntToDecimal(formData.taxaPercent, rules.boleto.taxa),
+        parcelas: Boolean(formData.parcelas),
+      };
+    }
+
+    if (editingRule === 'cartao') {
+      normalizedRule = {
+        taxaOperadora: percentIntToDecimal(formData.taxaOperadoraPercent, rules.cartao.taxaOperadora),
+        jurosMensal: percentIntToDecimal(formData.jurosMensalPercent, rules.cartao.jurosMensal),
+        parcelas: Boolean(formData.parcelas),
+      };
+    }
+
     const updatedRules = {
       ...rules,
-      [editingRule]: formData
+      [editingRule]: normalizedRule
     };
 
     setRules(updatedRules);
@@ -121,12 +182,12 @@ const PaymentRules = () => {
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                   style={styles.input}
                 />
-                <label>Taxa (desconto negativo)</label>
+                <label>Taxa (%)</label>
                 <input
                   type="number"
-                  step="0.01"
-                  value={formData.taxa || ''}
-                  onChange={(e) => setFormData({ ...formData, taxa: parseFloat(e.target.value) })}
+                  step="1"
+                  value={formData.taxaPercent ?? ''}
+                  onChange={(e) => setFormData({ ...formData, taxaPercent: e.target.value })}
                   style={styles.input}
                 />
                 <div style={styles.buttonGroup}>
@@ -154,12 +215,12 @@ const PaymentRules = () => {
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                   style={styles.input}
                 />
-                <label>Taxa</label>
+                <label>Taxa (%)</label>
                 <input
                   type="number"
-                  step="0.01"
-                  value={formData.taxa || ''}
-                  onChange={(e) => setFormData({ ...formData, taxa: parseFloat(e.target.value) })}
+                  step="1"
+                  value={formData.taxaPercent ?? ''}
+                  onChange={(e) => setFormData({ ...formData, taxaPercent: e.target.value })}
                   style={styles.input}
                 />
                 <label style={styles.checkboxLabel}>
@@ -189,20 +250,20 @@ const PaymentRules = () => {
             <h3>🛒 CARTÃO DE CRÉDITO</h3>
             {editingRule === 'cartao' ? (
               <div style={styles.formGroup}>
-                <label>Taxa da Operadora</label>
+                <label>Taxa da Operadora (%)</label>
                 <input
                   type="number"
-                  step="0.01"
-                  value={formData.taxaOperadora || ''}
-                  onChange={(e) => setFormData({ ...formData, taxaOperadora: parseFloat(e.target.value) })}
+                  step="1"
+                  value={formData.taxaOperadoraPercent ?? ''}
+                  onChange={(e) => setFormData({ ...formData, taxaOperadoraPercent: e.target.value })}
                   style={styles.input}
                 />
-                <label>Juros Mensal (por parcela)</label>
+                <label>Juros Mensal (%)</label>
                 <input
                   type="number"
-                  step="0.001"
-                  value={formData.jurosMensal || ''}
-                  onChange={(e) => setFormData({ ...formData, jurosMensal: parseFloat(e.target.value) })}
+                  step="1"
+                  value={formData.jurosMensalPercent ?? ''}
+                  onChange={(e) => setFormData({ ...formData, jurosMensalPercent: e.target.value })}
                   style={styles.input}
                 />
                 <label style={styles.checkboxLabel}>

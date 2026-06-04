@@ -9,11 +9,17 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  // CPF opcional, único por usuário
+  // CPF, único por usuário
   cpf: {
     type: String,
     unique: true,
     sparse: true,
+  },
+  // Estado lógico do usuário para soft delete
+  status: {
+    type: String,
+    enum: ['ativo', 'inativo'],
+    default: 'ativo',
   },
   // Senha (criptografada)
   password: {
@@ -29,6 +35,14 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  deletedAt: {
+    type: Date,
+    default: null,
   },
 });
 

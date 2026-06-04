@@ -3,7 +3,35 @@ import User from '../models/User.js';
 import { createAuditLog } from '../utils/audit.js';
 
 const normalizeCpf = (value = '') => value.replace(/\D/g, '');
-const isValidCpfFormat = (value = '') => /^\d{11}$/.test(value);
+const isValidCpf = (value = '') => {
+  if (!/^\d{11}$/.test(value)) {
+    return false;
+  }
+
+  if (/^(\d)\1{10}$/.test(value)) {
+    return false;
+  }
+
+  const digits = value.split('').map(Number);
+
+  const calculateDigit = (baseDigits, factorStart) => {
+    const sum = baseDigits.reduce((accumulator, digit, index) => accumulator + digit * (factorStart - index), 0);
+    const remainder = (sum * 10) % 11;
+    return remainder === 10 ? 0 : remainder;
+  };
+
+  const firstDigit = calculateDigit(digits.slice(0, 9), 10);
+  const secondDigit = calculateDigit(digits.slice(0, 10), 11);
+
+  return firstDigit === digits[9] && secondDigit === digits[10];
+};
+
+const isActiveUser = (user) => user?.status !== 'inativo';
+
+const findActiveUserById = (userId) => User.findOne({
+  _id: userId,
+  $or: [{ status: 'ativo' }, { status: { $exists: false } }],
+});
 
 class UserService {
   /**
@@ -16,8 +44,8 @@ class UserService {
 
     const normalizedCpf = normalizeCpf(cpf || '');
 
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      throw new Error('CPF must have 11 digits');
+    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+      throw new Error('CPF is invalid');
     }
 
     const existingUser = await User.findOne({ email });
@@ -76,6 +104,10 @@ class UserService {
       throw new Error('Invalid credentials');
     }
 
+    if (!isActiveUser(user)) {
+      throw new Error('User inactive');
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       throw new Error('Invalid credentials');
@@ -111,7 +143,7 @@ class UserService {
    * @returns {Promise<object>}
    */
   async getProfile(userId) {
-    const user = await User.findById(userId, '-password');
+    const user = await findActiveUserById(userId).select('-password');
     if (!user) {
       throw new Error('User not found');
     }
@@ -140,15 +172,15 @@ class UserService {
 
     const normalizedCpf = normalizeCpf(cpf || '');
 
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      throw new Error('CPF must have 11 digits');
+    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+      throw new Error('CPF is invalid');
     }
 
     if (password && password.length < 6) {
       throw new Error('Password must have at least 6 characters');
     }
 
-    const user = await User.findById(userId);
+    const user = await findActiveUserById(userId);
     if (!user) {
       throw new Error('User not found');
     }
@@ -170,6 +202,7 @@ class UserService {
     if (password) {
       user.password = password;
     }
+    user.updatedAt = new Date();
 
     await user.save();
 
@@ -216,8 +249,8 @@ class UserService {
       throw new Error('Email and password required');
     }
 
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      throw new Error('CPF must have 11 digits');
+    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+      throw new Error('CPF is invalid');
     }
 
     if (password.length < 6) {
@@ -245,6 +278,9 @@ class UserService {
       password,
       cpf: normalizedCpf || undefined,
       role: role || 'user',
+      status: 'ativo',
+      updatedAt: new Date(),
+      deletedAt: null,
     });
     await user.save();
 
@@ -282,15 +318,15 @@ class UserService {
       throw new Error('Email is required');
     }
 
-    if (normalizedCpf && !isValidCpfFormat(normalizedCpf)) {
-      throw new Error('CPF must have 11 digits');
+    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+      throw new Error('CPF is invalid');
     }
 
     if (role && !['admin', 'user'].includes(role)) {
       throw new Error('Invalid role');
     }
 
-    const user = await User.findById(userId);
+    const user = await findActiveUserById(userId);
     if (!user) {
       throw new Error('User not found');
     }
@@ -310,6 +346,7 @@ class UserService {
     user.email = email;
     user.cpf = normalizedCpf || undefined;
     user.role = role || user.role;
+    user.updatedAt = new Date();
 
     if (password) {
       if (password.length < 6) {
@@ -349,20 +386,31 @@ class UserService {
       throw new Error('You cannot delete your own user');
     }
 
-    const deletedUser = await User.findByIdAndDelete(userId);
+    const deletedUser = await User.findById(userId);
     if (!deletedUser) {
       throw new Error('User not found');
     }
 
+    if (!isActiveUser(deletedUser)) {
+      return deletedUser;
+    }
+
+    deletedUser.status = 'inativo';
+    deletedUser.deletedAt = new Date();
+    deletedUser.updatedAt = new Date();
+    await deletedUser.save();
+
     const actor = await User.findById(actorId);
     await createAuditLog({
-      action: 'user_deleted',
+      action: 'user_inactivated',
       entityType: 'user',
       entityId: deletedUser._id.toString(),
       actorId: actorId,
       actorEmail: actor?.email || 'system',
       details: { email: deletedUser.email, cpf: deletedUser.cpf, role: deletedUser.role },
     });
+
+    return deletedUser;
   }
 }
 

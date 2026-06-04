@@ -54,6 +54,12 @@ router.post('/register', async (req, res) => {
     const result = await UserService.register(email, password, cpf);
     res.status(201).json(result);
   } catch (err) {
+    if (err.message === 'User inactive') {
+      return res.status(409).json({ message: err.message });
+    }
+    if (err.message === 'CPF is invalid') {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(400).json({ message: err.message });
   }
 });
@@ -65,6 +71,9 @@ router.post('/login', async (req, res) => {
     const result = await UserService.login(email, password);
     res.json(result);
   } catch (err) {
+    if (err.message === 'User inactive') {
+      return res.status(403).json({ message: err.message });
+    }
     res.status(400).json({ message: err.message });
   }
 });
@@ -86,6 +95,12 @@ router.put('/me', verifyToken, async (req, res) => {
     const user = await UserService.updateProfile(req.userId, email, cpf, password);
     res.json(user);
   } catch (err) {
+    if (err.message === 'User inactive') {
+      return res.status(403).json({ message: err.message });
+    }
+    if (err.message === 'CPF is invalid') {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(400).json({ message: err.message });
   }
 });
@@ -107,6 +122,9 @@ router.post('/users', verifyToken, requireAdmin, async (req, res) => {
     const user = await UserService.createUser(email, password, role, cpf, req.userId);
     res.status(201).json(user);
   } catch (err) {
+    if (err.message === 'CPF is invalid') {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(400).json({ message: err.message });
   }
 });
@@ -117,6 +135,12 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
     const user = await UserService.updateUser(req.params.id, req.body, req.userId);
     res.json(user);
   } catch (err) {
+    if (err.message === 'User inactive') {
+      return res.status(409).json({ message: err.message });
+    }
+    if (err.message === 'CPF is invalid') {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(400).json({ message: err.message });
   }
 });
@@ -124,8 +148,8 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
 // Deletar usuário (apenas admin)
 router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
-    await UserService.deleteUser(req.params.id, req.userId);
-    res.json({ message: 'User deleted successfully' });
+    const user = await UserService.deleteUser(req.params.id, req.userId);
+    res.json(user);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

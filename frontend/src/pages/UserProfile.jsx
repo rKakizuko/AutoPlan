@@ -35,6 +35,23 @@ const UserProfile = () => {
 
   const normalizeCpf = (value) => value.replace(/\D/g, '');
 
+  const isValidCpf = (value) => {
+    const cpf = normalizeCpf(value);
+    if (!/^\d{11}$/.test(cpf)) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+    const digits = cpf.split('').map(Number);
+    const calculateDigit = (baseDigits, factorStart) => {
+      const sum = baseDigits.reduce((accumulator, digit, index) => accumulator + digit * (factorStart - index), 0);
+      const remainder = (sum * 10) % 11;
+      return remainder === 10 ? 0 : remainder;
+    };
+
+    const firstDigit = calculateDigit(digits.slice(0, 9), 10);
+    const secondDigit = calculateDigit(digits.slice(0, 10), 11);
+    return firstDigit === digits[9] && secondDigit === digits[10];
+  };
+
   React.useEffect(() => {
     const fetchData = async () => {
       if (!token) {
@@ -78,6 +95,7 @@ const UserProfile = () => {
 
         localStorage.setItem('user', JSON.stringify(profileData));
       } catch (err) {
+        console.error('Erro ao carregar perfil:', err);
         setError('Erro ao conectar ao servidor');
       } finally {
         setLoading(false);
@@ -124,8 +142,8 @@ const UserProfile = () => {
     }
 
     const normalizedCpf = normalizeCpf(form.cpf);
-    if (normalizedCpf && normalizedCpf.length !== 11) {
-      setError('CPF deve conter 11 dígitos');
+    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+      setError('CPF inválido');
       return;
     }
 
@@ -167,6 +185,7 @@ const UserProfile = () => {
       localStorage.setItem('user', JSON.stringify(data));
       setSuccess('Perfil atualizado com sucesso');
     } catch (err) {
+      console.error('Erro ao salvar perfil:', err);
       setError('Erro ao conectar ao servidor');
     } finally {
       setSaving(false);

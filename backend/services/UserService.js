@@ -44,7 +44,11 @@ class UserService {
 
     const normalizedCpf = normalizeCpf(cpf || '');
 
-    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+    if (!normalizedCpf) {
+      throw new Error('CPF is required');
+    }
+
+    if (!isValidCpf(normalizedCpf)) {
       throw new Error('CPF is invalid');
     }
 
@@ -317,6 +321,9 @@ class UserService {
     if (!email) {
       throw new Error('Email is required');
     }
+    if (!normalizedCpf) {
+    throw new Error('CPF obrigatorio');
+  }
 
     if (normalizedCpf && !isValidCpf(normalizedCpf)) {
       throw new Error('CPF is invalid');
@@ -350,7 +357,7 @@ class UserService {
 
     if (password) {
       if (password.length < 6) {
-        throw new Error('Password must have at least 6 characters');
+        throw new Error('Senha precisa ter no minimo 6 caracteres');
       }
       user.password = password;
     }

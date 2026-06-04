@@ -79,6 +79,23 @@ const Register = () => {
 
   const normalizeCpf = (value) => value.replace(/\D/g, '');
 
+  const isValidCpf = (value) => {
+    const cpf = normalizeCpf(value);
+    if (!/^\d{11}$/.test(cpf)) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+    const digits = cpf.split('').map(Number);
+    const calculateDigit = (baseDigits, factorStart) => {
+      const sum = baseDigits.reduce((accumulator, digit, index) => accumulator + digit * (factorStart - index), 0);
+      const remainder = (sum * 10) % 11;
+      return remainder === 10 ? 0 : remainder;
+    };
+
+    const firstDigit = calculateDigit(digits.slice(0, 9), 10);
+    const secondDigit = calculateDigit(digits.slice(0, 10), 11);
+    return firstDigit === digits[9] && secondDigit === digits[10];
+  };
+
   // Enviar formulário de criação/edição de usuário
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,8 +108,8 @@ const Register = () => {
     }
 
     const normalizedCpf = normalizeCpf(cpf);
-    if (normalizedCpf && normalizedCpf.length !== 11) {
-      setError('CPF deve conter 11 dígitos');
+    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+      setError('CPF inválido');
       return;
     }
 
@@ -147,6 +164,11 @@ const Register = () => {
 
   // Editar usuário
   const handleEdit = (user) => {
+    if (user.status === 'inativo') {
+      setError('Usuário inativo não pode ser editado');
+      return;
+    }
+
     setError('');
     setSuccess('');
     setEditingUserId(user._id || user.id);
@@ -159,7 +181,7 @@ const Register = () => {
   // Deletar usuário
   const handleDelete = async (user) => {
     const userId = user._id || user.id;
-    const confirmed = window.confirm(`Deseja realmente excluir o usuário ${user.email}?`);
+    const confirmed = window.confirm(`Deseja realmente inativar o usuário ${user.email}?`);
     if (!confirmed) {
       return;
     }
@@ -174,11 +196,11 @@ const Register = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        setError(data.message || 'Erro ao excluir usuário');
+        setError(data.message || 'Erro ao inativar usuário');
         return;
       }
 
-      setSuccess('Usuário excluído com sucesso');
+      setSuccess('Usuário inativado com sucesso');
       if (editingUserId === userId) {
         resetForm();
       }
@@ -221,7 +243,7 @@ const Register = () => {
       <div style={styles.wideCard(isMobile)}>
         <h1 style={styles.title}>AutoPlan</h1>
         <h2 style={styles.subtitle}>Gerenciar Usuários</h2>
-        <p style={styles.adminOnly}>CRUD de usuários: criar, visualizar, editar e excluir</p>
+        <p style={styles.adminOnly}>CRUD de usuários: criar, visualizar, editar e inativar</p>
 
         {error && <div style={styles.error}>{error}</div>}
         {success && <div style={styles.success}>{success}</div>}
@@ -231,7 +253,7 @@ const Register = () => {
             <h3>{editingUserId ? 'Editar usuário' : 'Criar usuário'}</h3>
 
             <div style={styles.formGroup}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Email*</label>
               <input
                 id="email"
                 type="email"
@@ -243,7 +265,7 @@ const Register = () => {
             </div>
 
             <div style={styles.formGroup}>
-              <label htmlFor="cpf">CPF</label>
+              <label htmlFor="cpf">CPF*</label>
               <input
                 id="cpf"
                 type="text"
@@ -252,12 +274,14 @@ const Register = () => {
                 onChange={(e) => setCpf(formatCpf(e.target.value))}
                 placeholder="000.000.000-00"
                 maxLength={14}
+                inputMode="numeric"
               />
+              <small style={styles.helperText}>O CPF precisa ser válido antes de salvar.</small>
             </div>
 
             <div style={styles.formGroup}>
               <label htmlFor="password">
-                Senha {editingUserId ? '(opcional para manter a atual)' : ''}
+                Senha {editingUserId ? '*' : ''}
               </label>
               <input
                 id="password"
@@ -308,8 +332,9 @@ const Register = () => {
                       <th style={styles.th}>Email</th>
                       <th style={styles.th}>CPF</th>
                       <th style={styles.th}>Perfil</th>
+                      <th style={styles.th}>Status</th>
                       <th style={styles.th}>Criado em</th>
-                      <th style={styles.th}>Ações</th>
+                      <th style={styles.thActions}>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -321,18 +346,33 @@ const Register = () => {
                           <td style={styles.td}>{formatCpf(user.cpf || '') || '-'}</td>
                           <td style={styles.td}>{user.role}</td>
                           <td style={styles.td}>
+                            <span style={{
+                              ...styles.statusBadge,
+                              backgroundColor: user.status === 'inativo' ? 'rgba(220,38,38,0.18)' : 'rgba(212,175,55,0.18)',
+                              color: user.status === 'inativo' ? 'var(--app-danger-text)' : 'var(--app-accent)',
+                            }}>
+                              {user.status === 'inativo' ? 'Inativo' : 'Ativo'}
+                            </span>
+                          </td>
+                          <td style={styles.td}>
                             {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                           </td>
-                          <td style={styles.tdActions}>
-                            <button type="button" style={styles.editBtn} onClick={() => handleEdit(user)}>
+                          <td style={styles.td}>
+                            <button
+                              type="button"
+                              style={styles.editBtn}
+                              onClick={() => handleEdit(user)}
+                              disabled={user.status === 'inativo'}
+                            >
                               Editar
                             </button>
                             <button
                               type="button"
                               style={styles.deleteBtn}
                               onClick={() => handleDelete(user)}
+                              disabled={user.status === 'inativo'}
                             >
-                              Excluir
+                              {user.status === 'inativo' ? 'Inativo' : 'Inativar'}
                             </button>
                           </td>
                         </tr>
@@ -381,7 +421,7 @@ const styles = {
     boxShadow: '0 10px 25px rgba(0,0,0,0.35)',
     border: '1px solid var(--app-border)',
     width: '100%',
-    maxWidth: '1100px',
+    maxWidth: '1360px',
     margin: isMobile ? '20px auto' : '40px auto',
     color: 'var(--app-text)',
   }),
@@ -402,10 +442,11 @@ const styles = {
     padding: '20px',
     borderRadius: '12px',
     border: '1px solid var(--app-border)',
+    minWidth: 0,
   },
   layout: (isMobile) => ({
     display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr' : '340px 1fr',
+    gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 380px) minmax(0, 1fr)',
     gap: '20px',
     alignItems: 'start',
   }),
@@ -448,6 +489,9 @@ const styles = {
   formActions: {
     display: 'flex',
     gap: '10px',
+    alignItems: 'top',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
   },
   error: { 
     backgroundColor: 'var(--app-danger-bg)', 
@@ -486,16 +530,18 @@ const styles = {
   listPanel: {
     backgroundColor: 'var(--app-surface)',
     padding: '10px 0',
+    minWidth: 0,
   },
   tableWrap: {
     overflowX: 'auto',
     border: '1px solid var(--app-border)',
     borderRadius: '12px',
+    maxWidth: '100%',
   },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
-    minWidth: '560px',
+    minWidth: '700px',
   },
   th: {
     textAlign: 'left',
@@ -504,33 +550,66 @@ const styles = {
     fontSize: '13px',
     color: 'var(--app-accent)',
   },
+  thActions: {
+    textAlign: 'center',
+    backgroundColor: 'var(--app-surface-2)',
+    padding: '12px',
+    fontSize: '13px',
+    color: 'var(--app-accent)',
+    width: '190px',
+    minWidth: '190px',
+    whiteSpace: 'nowrap',
+  },
   td: {
     padding: '12px',
     borderTop: '1px solid var(--app-border)',
     color: 'var(--app-text)',
     fontSize: '14px',
+    verticalAlign: 'middle',
   },
   tdActions: {
     padding: '12px',
     borderTop: '1px solid var(--app-border)',
     display: 'flex',
     gap: '8px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'nowrap',
+    whiteSpace: 'nowrap',
+    width: '300px',
+    minWidth: '190px',
+  },
+  helperText: {
+    display: 'block',
+    marginTop: '6px',
+    color: 'var(--app-muted)',
+    fontSize: '12px',
+  },
+  statusBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '4px 8px',
+    borderRadius: '999px',
+    fontSize: '11px',
+    fontWeight: '700',
   },
   editBtn: {
-    padding: '8px 12px',
+    padding: '6px 10px',
     border: '1px solid var(--app-border)',
     borderRadius: '8px',
     backgroundColor: 'var(--app-accent)',
     color: '#141414',
     cursor: 'pointer',
+    fontSize: '13px',
   },
   deleteBtn: {
-    padding: '8px 12px',
+    padding: '6px 10px',
     border: '1px solid var(--app-border)',
     borderRadius: '8px',
     backgroundColor: 'var(--app-danger-bg)',
     color: 'var(--app-danger-text)',
     cursor: 'pointer',
+    fontSize: '13px',
   },
 };
 

@@ -25,15 +25,19 @@ const UserProfile = () => {
     status: 'all',
   });
 
-  const formatCpf = (value) => {
-    const digits = value.replace(/\D/g, '').slice(0, 11);
+ const formatCpf = (value) => {
+    if (!value) return '';
+    const digits = String(value).replace(/\D/g, '').slice(0, 11);
     if (digits.length <= 3) return digits;
     if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
     if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
   };
 
-  const normalizeCpf = (value) => value.replace(/\D/g, '');
+  const normalizeCpf = (value) => {
+    if (!value) return '';
+    return String(value).replace(/\D/g, '');
+  };
 
   const isValidCpf = (value) => {
     const cpf = normalizeCpf(value);
@@ -142,7 +146,12 @@ const UserProfile = () => {
     }
 
     const normalizedCpf = normalizeCpf(form.cpf);
-    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+    if (!normalizedCpf) {
+      setError('O CPF é obrigatório e não pode ficar em branco');
+      return;
+    }
+    
+    if (!isValidCpf(normalizedCpf)) {
       setError('CPF inválido');
       return;
     }
@@ -163,7 +172,7 @@ const UserProfile = () => {
         },
         body: JSON.stringify({
           email: form.email,
-          cpf: normalizedCpf,
+          cpf: normalizedCpf ? normalizedCpf : undefined,
           password: form.password || undefined,
         }),
       });

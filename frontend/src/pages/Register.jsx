@@ -59,6 +59,8 @@ const Register = () => {
     loadUsers();
   }, [loadUsers]);
 
+  const visibleUsers = users.filter((user) => user.status !== 'inativo');
+
   // Limpar formulário
   const resetForm = () => {
     setEditingUserId(null);
@@ -322,7 +324,7 @@ const Register = () => {
             <h3>Usuários cadastrados</h3>
             {fetchingUsers ? (
               <p style={{ color: 'var(--app-muted)' }}>Carregando usuários...</p>
-            ) : users.length === 0 ? (
+            ) : visibleUsers.length === 0 ? (
               <p style={{ color: 'var(--app-muted)' }}>Nenhum usuário encontrado.</p>
             ) : (
               <div style={styles.tableWrap}>
@@ -338,7 +340,7 @@ const Register = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((user) => {
+                    {visibleUsers.map((user) => {
                       const userId = user._id || user.id;
                       return (
                         <tr key={userId}>

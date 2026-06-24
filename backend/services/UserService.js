@@ -100,21 +100,21 @@ class UserService {
    */
   async login(email, password) {
     if (!email || !password) {
-      throw new Error('Email and password required');
+      throw new Error('Email e senha devem ser preenchidos');
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new Error('credenciais invalidas');
     }
 
     if (!isActiveUser(user)) {
-      throw new Error('User inactive');
+      throw new Error('User inativo');
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      throw new Error('Invalid credentials');
+      throw new Error('Credenciais invalidas');
     }
 
     const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
@@ -250,15 +250,15 @@ class UserService {
     const normalizedCpf = normalizeCpf(cpf || '');
 
     if (!email || !password) {
-      throw new Error('Email and password required');
+      throw new Error('Email e senha devem ser preenchidos');
     }
 
     if (normalizedCpf && !isValidCpf(normalizedCpf)) {
-      throw new Error('CPF is invalid');
+      throw new Error('CPF invalido');
     }
 
     if (password.length < 6) {
-      throw new Error('Password must have at least 6 characters');
+      throw new Error('Senha deve conter mais de 6 caracteres');
     }
 
     if (role && !['admin', 'user'].includes(role)) {
@@ -267,13 +267,13 @@ class UserService {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new Error('User existe');
     }
 
     if (normalizedCpf) {
       const existingCpf = await User.findOne({ cpf: normalizedCpf });
       if (existingCpf) {
-        throw new Error('CPF already in use');
+        throw new Error('CPF em uso');
       }
     }
 
@@ -319,14 +319,14 @@ class UserService {
     const normalizedCpf = normalizeCpf(cpf || '');
 
     if (!email) {
-      throw new Error('Email is required');
+      throw new Error('Email obrigatorio');
     }
     if (!normalizedCpf) {
     throw new Error('CPF obrigatorio');
   }
 
     if (normalizedCpf && !isValidCpf(normalizedCpf)) {
-      throw new Error('CPF is invalid');
+      throw new Error('CPF invalido');
     }
 
     if (role && !['admin', 'user'].includes(role)) {
@@ -335,18 +335,18 @@ class UserService {
 
     const user = await findActiveUserById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('User nao encontrado');
     }
 
     const emailInUse = await User.findOne({ email, _id: { $ne: userId } });
     if (emailInUse) {
-      throw new Error('Email already in use');
+      throw new Error('Email existente');
     }
 
     if (normalizedCpf) {
       const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: userId } });
       if (cpfInUse) {
-        throw new Error('CPF already in use');
+        throw new Error('CPF existente');
       }
     }
 
@@ -390,12 +390,12 @@ class UserService {
    */
   async deleteUser(userId, actorId) {
     if (actorId.toString() === userId.toString()) {
-      throw new Error('You cannot delete your own user');
+      throw new Error('Não pode deletar seu user');
     }
 
     const deletedUser = await User.findById(userId);
     if (!deletedUser) {
-      throw new Error('User not found');
+      throw new Error('User não encontrado');
     }
 
     if (!isActiveUser(deletedUser)) {

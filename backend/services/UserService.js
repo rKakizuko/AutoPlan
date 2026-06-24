@@ -308,7 +308,7 @@ class UserService {
   }
 
   /**
-   * Update a user (admin only)
+   * Atualiza usuario
    * @param {string} userId
    * @param {object} updates - {email, password, role, cpf}
    * @param {string} actorId - admin user id
@@ -384,7 +384,7 @@ class UserService {
   }
 
   /**
-   * Delete a user (admin only)
+   * Deleta usuario (inativa o usuario)
    * @param {string} userId
    * @param {string} actorId - admin user id
    */

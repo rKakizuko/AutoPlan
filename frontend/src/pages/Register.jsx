@@ -183,7 +183,7 @@ const Register = () => {
   // Deletar usuário
   const handleDelete = async (user) => {
     const userId = user._id || user.id;
-    const confirmed = window.confirm(`Deseja realmente inativar o usuário ${user.email}?`);
+    const confirmed = window.confirm(`Deseja realmente excluir o usuário ${user.email}?`);
     if (!confirmed) {
       return;
     }
@@ -198,11 +198,11 @@ const Register = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        setError(data.message || 'Erro ao inativar usuário');
+        setError(data.message || 'Erro ao excluir usuário');
         return;
       }
 
-      setSuccess('Usuário inativado com sucesso');
+      setSuccess('Usuário excluido com sucesso');
       if (editingUserId === userId) {
         resetForm();
       }
@@ -245,7 +245,7 @@ const Register = () => {
       <div style={styles.wideCard(isMobile)}>
         <h1 style={styles.title}>AutoPlan</h1>
         <h2 style={styles.subtitle}>Gerenciar Usuários</h2>
-        <p style={styles.adminOnly}>CRUD de usuários: criar, visualizar, editar e inativar</p>
+        <p style={styles.adminOnly}>CRUD de usuários: criar, visualizar, editar e excluir</p>
 
         {error && <div style={styles.error}>{error}</div>}
         {success && <div style={styles.success}>{success}</div>}
@@ -374,7 +374,7 @@ const Register = () => {
                               onClick={() => handleDelete(user)}
                               disabled={user.status === 'inativo'}
                             >
-                              {user.status === 'inativo' ? 'Inativo' : 'Inativar'}
+                              {user.status === 'inativo' ? 'Inativo' : 'Excluir'}
                             </button>
                           </td>
                         </tr>

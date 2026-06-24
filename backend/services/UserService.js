@@ -171,17 +171,17 @@ class UserService {
    */
   async updateProfile(userId, email, cpf, password) {
     if (!email) {
-      throw new Error('Email is required');
+      throw new Error('Email deve ser preenchido');
     }
 
     const normalizedCpf = normalizeCpf(cpf || '');
 
     if (normalizedCpf && !isValidCpf(normalizedCpf)) {
-      throw new Error('CPF is invalid');
+      throw new Error('CPF é inválido');
     }
 
     if (password && password.length < 6) {
-      throw new Error('Password must have at least 6 characters');
+      throw new Error('Senha precisa conter 6 caracteres');
     }
 
     const user = await findActiveUserById(userId);
@@ -191,13 +191,13 @@ class UserService {
 
     const emailInUse = await User.findOne({ email, _id: { $ne: userId } });
     if (emailInUse) {
-      throw new Error('Email already in use');
+      throw new Error('Email existente');
     }
 
     if (normalizedCpf) {
       const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: userId } });
       if (cpfInUse) {
-        throw new Error('CPF already in use');
+        throw new Error('CPF existente');
       }
     }
 

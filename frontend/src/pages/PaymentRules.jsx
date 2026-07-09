@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../utils/api';
 
-const decimalToPercentInt = (value) => Math.round((Number(value) || 0) * 100);
+const decimalToPercentInt = (value) => (Number(value) || 0) * 100;
 const percentIntToDecimal = (value, fallback = 0) => {
   if (value === '' || value === null || value === undefined) {
     return fallback;
   }
 
-  const parsed = Number.parseInt(value, 10);
+  const parsed = Number(value, 10);
   if (Number.isNaN(parsed)) {
     return fallback;
   }

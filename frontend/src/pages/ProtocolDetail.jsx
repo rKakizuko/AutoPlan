@@ -6,13 +6,13 @@ import { apiUrl } from '../utils/api';
 const ProtocolDetail = () => {
   const navigate = useNavigate();
   const { protocolId } = useParams();
-  // Dados do protocolo
+
   const [protocol, setProtocol] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingPayment, setUpdatingPayment] = useState(null);
 
-  // Buscar dados do protocolo
+
   useEffect(() => {
     const fetchProtocol = async () => {
       const localPreviewProtocol = getLocalPreviewProtocolById(protocolId);
@@ -52,7 +52,7 @@ const ProtocolDetail = () => {
     fetchProtocol();
   }, [protocolId, navigate]);
 
-  // Atualizar status de pagamento de uma parcela
+
   const handlePaymentToggle = async (parcelaNumero, currentStatus) => {
     if (protocol?._id === LOCAL_PREVIEW_PROTOCOL_ID) {
       setUpdatingPayment(parcelaNumero);

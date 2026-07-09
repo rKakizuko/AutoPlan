@@ -12,34 +12,30 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+const origensPermitidas = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-// Configurar middleware
-app.use(cors(allowedOrigins.length > 0 ? { origin: allowedOrigins } : undefined));
+app.use(cors(origensPermitidas.length > 0 ? { origin: origensPermitidas } : undefined));
 app.use(express.json());
 
-// Conectar ao MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB conectado'))
+  .catch((err) => console.log('Erro na conexão com o MongoDB:', err));
 
-// Registrar rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/protocols', protocolRoutes);
 app.use('/api/paymentRules', paymentRulesRoutes);
 app.use('/api/audit-logs', auditLogsRoutes);
 
-// Health check do servidor
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'AutoPlan API is running' });
+  res.json({ status: 'OK', message: 'API AutoPlan em execução' });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Servidor em execução em http://localhost:${PORT}`);
 });

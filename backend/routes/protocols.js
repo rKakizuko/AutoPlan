@@ -5,16 +5,15 @@ import ProtocolService from '../services/ProtocolService.js';
 
 const router = express.Router();
 
-// Verificar e validar JWT no header Authorization
-const verifyToken = (req, res, next) => {
+const verificarToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Authorization header must be Bearer token' });
+    return res.status(401).json({ message: 'O cabeçalho Authorization deve conter um token Bearer' });
   }
 
   const token = authHeader.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
+    return res.status(401).json({ message: 'Token não informado' });
   }
 
   try {
@@ -23,21 +22,21 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+      return res.status(401).json({ message: 'Token expirado' });
     }
 
     if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token signature or format' });
+      return res.status(401).json({ message: 'Assinatura ou formato do token inválido' });
     }
 
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Token inválido' });
   }
 };
 
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verificarToken, async (req, res) => {
   try {
     const { cliente, precoBase, metodo, parcelas, total } = req.body;
-    const protocol = await ProtocolService.create(
+    const protocol = await ProtocolService.criar(
       req.userId,
       cliente,
       precoBase,
@@ -47,44 +46,41 @@ router.post('/', verifyToken, async (req, res) => {
     );
     res.status(201).json(protocol);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
-// Criar novo protocolo de pagamento// Listar protocolos (admin vê todos, usuário vê seus)
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', verificarToken, async (req, res) => {
   try {
     const actor = await User.findById(req.userId);
     const isAdmin = actor?.role === 'admin';
-    const protocols = await ProtocolService.getAll(req.userId, isAdmin);
+    const protocols = await ProtocolService.listarTodos(req.userId, isAdmin);
     res.json(protocols);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
 
-// Obter detalhes de um protocolo específico
-router.get('/:id', verifyToken, async (req, res) => {
+router.get('/:id', verificarToken, async (req, res) => {
   try {
     const actor = await User.findById(req.userId);
     const isAdmin = actor?.role === 'admin';
-    const protocol = await ProtocolService.getById(req.params.id, req.userId, isAdmin);
+    const protocol = await ProtocolService.obterPorId(req.params.id, req.userId, isAdmin);
     res.json(protocol);
   } catch (err) {
-    if (err.message === 'Not authorized') {
+    if (err.message === 'Não autorizado') {
       return res.status(403).json({ message: err.message });
     }
-    if (err.message === 'Protocol not found') {
+    if (err.message === 'Protocolo não encontrado') {
       return res.status(404).json({ message: err.message });
     }
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
 
-// Atualizar status de pagamento de uma parcela
-router.patch('/:id/payment', verifyToken, async (req, res) => {
+router.patch('/:id/payment', verificarToken, async (req, res) => {
   try {
     const { parcelaNumero, pago, dataPagamento } = req.body;
-    const protocol = await ProtocolService.updatePaymentStatus(
+    const protocol = await ProtocolService.atualizarStatusPagamento(
       req.params.id,
       req.userId,
       parcelaNumero,
@@ -93,13 +89,13 @@ router.patch('/:id/payment', verifyToken, async (req, res) => {
     );
     res.json(protocol);
   } catch (err) {
-    if (err.message === 'Not authorized') {
+    if (err.message === 'Não autorizado') {
       return res.status(403).json({ message: err.message });
     }
-    if (err.message === 'Protocol not found' || err.message === 'Payment not found') {
+    if (err.message === 'Protocolo não encontrado' || err.message === 'Pagamento não encontrado') {
       return res.status(404).json({ message: err.message });
     }
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
 

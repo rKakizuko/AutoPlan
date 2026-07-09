@@ -56,7 +56,7 @@ const Simulador = () => {
     fetchRules();
   }, []);
 
-  // Calcular valor final com taxas
+
   useEffect(() => {
     const valor = parseFloat(precoBase) || 0;
     let calc = 0;
@@ -70,7 +70,7 @@ const Simulador = () => {
     setTotal(calc);
   }, [precoBase, metodo, parcelas, rules]);
 
-  // Salvar protocolo no backend
+
   const saveProtocol = async () => {
     const token = localStorage.getItem('token');
     if (!token) {

@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 
 const PaymentRulesSchema = new mongoose.Schema({
   pix: {
-    nome: { type: String, default: 'PIX (10% OFF)' },
+    nome: { type: String, default: 'PIX ' },
     taxa: { type: Number, default: -0.10 }
   },
   boleto: {
-    nome: { type: String, default: 'Boleto (5% Taxa)' },
+    nome: { type: String, default: 'Boleto' },
     taxa: { type: Number, default: 0.05 },
     parcelas: { type: Boolean, default: true }
   },

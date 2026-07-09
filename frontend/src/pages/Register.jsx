@@ -8,7 +8,7 @@ const Register = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = currentUser?.role === 'admin';
 
-  // Lista de usuários do sistema
+
   const [users, setUsers] = useState([]);
   const [fetchingUsers, setFetchingUsers] = useState(true);
 
@@ -28,7 +28,7 @@ const Register = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Carregar lista de usuários
+
   const loadUsers = React.useCallback(async () => {
     if (!token || !isAdmin) {
       setFetchingUsers(false);
@@ -61,7 +61,7 @@ const Register = () => {
 
   const visibleUsers = users.filter((user) => user.status !== 'inativo');
 
-  // Limpar formulário
+
   const resetForm = () => {
     setEditingUserId(null);
     setEmail('');
@@ -70,7 +70,7 @@ const Register = () => {
     setRole('user');
   };
 
-  // Formatar CPF com máscara
+
   const formatCpf = (value) => {
     const digits = value.replace(/\D/g, '').slice(0, 11);
     if (digits.length <= 3) return digits;
@@ -98,7 +98,7 @@ const Register = () => {
     return firstDigit === digits[9] && secondDigit === digits[10];
   };
 
-  // Enviar formulário de criação/edição de usuário
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -164,7 +164,7 @@ const Register = () => {
     }
   };
 
-  // Editar usuário
+
   const handleEdit = (user) => {
     if (user.status === 'inativo') {
       setError('Usuário inativo não pode ser editado');
@@ -180,7 +180,7 @@ const Register = () => {
     setPassword('');
   };
 
-  // Deletar usuário
+
   const handleDelete = async (user) => {
     const userId = user._id || user.id;
     const confirmed = window.confirm(`Deseja realmente excluir o usuário ${user.email}?`);

@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { createAuditLog } from '../utils/audit.js';
+import { registrarLogAuditoria } from '../utils/audit.js';
 
-const normalizeCpf = (value = '') => value.replace(/\D/g, '');
-const isValidCpf = (value = '') => {
+const normalizarCpf = (value = '') => value.replace(/\D/g, '');
+const cpfValido = (value = '') => {
   if (!/^\d{11}$/.test(value)) {
     return false;
   }
@@ -26,41 +26,38 @@ const isValidCpf = (value = '') => {
   return firstDigit === digits[9] && secondDigit === digits[10];
 };
 
-const isActiveUser = (user) => user?.status !== 'inativo';
+const usuarioAtivo = (user) => user?.status !== 'inativo';
 
-const findActiveUserById = (userId) => User.findOne({
+const buscarUsuarioAtivoPorId = (userId) => User.findOne({
   _id: userId,
   $or: [{ status: 'ativo' }, { status: { $exists: false } }],
 });
 
 class UserService {
-  /**
-   * Registra novo usuário no sistema
-   */
-  async register(email, password, cpf) {
+  async registrar(email, password, cpf) {
     if (!email || !password) {
-      throw new Error('Email and password required');
+      throw new Error('Email e senha são obrigatórios');
     }
 
-    const normalizedCpf = normalizeCpf(cpf || '');
+    const normalizedCpf = normalizarCpf(cpf || '');
 
     if (!normalizedCpf) {
-      throw new Error('CPF is required');
+      throw new Error('CPF é obrigatório');
     }
 
-    if (!isValidCpf(normalizedCpf)) {
-      throw new Error('CPF is invalid');
+    if (!cpfValido(normalizedCpf)) {
+      throw new Error('CPF inválido');
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new Error('Usuário já existe');
     }
 
     if (normalizedCpf) {
       const existingCpf = await User.findOne({ cpf: normalizedCpf });
       if (existingCpf) {
-        throw new Error('CPF already in use');
+        throw new Error('CPF já está em uso');
       }
     }
 
@@ -72,7 +69,7 @@ class UserService {
     });
     await user.save();
 
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'user_registered',
       entityType: 'user',
       entityId: user._id.toString(),
@@ -95,33 +92,30 @@ class UserService {
     };
   }
 
-  /**
-   * Autentica usuário e gera token JWT
-   */
-  async login(email, password) {
+  async autenticar(email, password) {
     if (!email || !password) {
       throw new Error('Email e senha devem ser preenchidos');
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new Error('credenciais invalidas');
+      throw new Error('Credenciais inválidas');
     }
 
-    if (!isActiveUser(user)) {
-      throw new Error('User inativo');
+    if (!usuarioAtivo(user)) {
+      throw new Error('Usuário inativo');
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      throw new Error('Credenciais invalidas');
+      throw new Error('Credenciais inválidas');
     }
 
     const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'user_logged_in',
       entityType: 'auth',
       entityId: user._id.toString(),
@@ -141,15 +135,10 @@ class UserService {
     };
   }
 
-  /**
-   * Obtém perfil do usuário autenticado
-   * @param {string} userId
-   * @returns {Promise<object>}
-   */
-  async getProfile(userId) {
-    const user = await findActiveUserById(userId).select('-password');
+  async obterPerfil(userId) {
+    const user = await buscarUsuarioAtivoPorId(userId).select('-password');
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Usuário não encontrado');
     }
 
     return {
@@ -161,43 +150,35 @@ class UserService {
     };
   }
 
-  /**
-   * Atualiza dados do perfil do usuário
-   * @param {string} userId
-   * @param {string} email
-   * @param {string} cpf - optional
-   * @param {string} password - optional
-   * @returns {Promise<object>}
-   */
-  async updateProfile(userId, email, cpf, password) {
+  async atualizarPerfil(userId, email, cpf, password) {
     if (!email) {
       throw new Error('Email deve ser preenchido');
     }
 
-    const normalizedCpf = normalizeCpf(cpf || '');
+    const normalizedCpf = normalizarCpf(cpf || '');
 
-    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
+    if (normalizedCpf && !cpfValido(normalizedCpf)) {
       throw new Error('CPF é inválido');
     }
 
     if (password && password.length < 6) {
-      throw new Error('Senha precisa conter 6 caracteres');
+      throw new Error('A senha precisa conter pelo menos 6 caracteres');
     }
 
-    const user = await findActiveUserById(userId);
+    const user = await buscarUsuarioAtivoPorId(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Usuário não encontrado');
     }
 
     const emailInUse = await User.findOne({ email, _id: { $ne: userId } });
     if (emailInUse) {
-      throw new Error('Email existente');
+      throw new Error('Email já existe');
     }
 
     if (normalizedCpf) {
       const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: userId } });
       if (cpfInUse) {
-        throw new Error('CPF existente');
+        throw new Error('CPF já existe');
       }
     }
 
@@ -210,7 +191,7 @@ class UserService {
 
     await user.save();
 
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'user_profile_updated',
       entityType: 'user',
       entityId: user._id.toString(),
@@ -228,52 +209,39 @@ class UserService {
     };
   }
 
-  /**
-   * Lista todos os usuários do sistema
-   * @returns {Promise<array>}
-   */
-  async listUsers() {
+  async listarUsuarios() {
     const users = await User.find({}, '-password').sort({ createdAt: -1 });
     return users;
   }
 
-  /**
-   * Cria novo usuário (por admin)
-   * @param {string} email
-   * @param {string} password
-   * @param {string} role - 'admin' | 'user'
-   * @param {string} cpf - optional
-   * @param {string} actorId - admin user id
-   * @returns {Promise<object>}
-   */
-  async createUser(email, password, role, cpf, actorId) {
-    const normalizedCpf = normalizeCpf(cpf || '');
+  async criarUsuario(email, password, role, cpf, actorId) {
+    const normalizedCpf = normalizarCpf(cpf || '');
 
     if (!email || !password) {
       throw new Error('Email e senha devem ser preenchidos');
     }
 
-    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
-      throw new Error('CPF invalido');
+    if (normalizedCpf && !cpfValido(normalizedCpf)) {
+      throw new Error('CPF inválido');
     }
 
     if (password.length < 6) {
-      throw new Error('Senha deve conter mais de 6 caracteres');
+      throw new Error('A senha deve conter pelo menos 6 caracteres');
     }
 
     if (role && !['admin', 'user'].includes(role)) {
-      throw new Error('Invalid role');
+      throw new Error('Função inválida');
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new Error('User existe');
+      throw new Error('Usuário já existe');
     }
 
     if (normalizedCpf) {
       const existingCpf = await User.findOne({ cpf: normalizedCpf });
       if (existingCpf) {
-        throw new Error('CPF em uso');
+        throw new Error('CPF já está em uso');
       }
     }
 
@@ -289,7 +257,7 @@ class UserService {
     await user.save();
 
     const actor = await User.findById(actorId);
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'user_created',
       entityType: 'user',
       entityId: user._id.toString(),
@@ -307,46 +275,39 @@ class UserService {
     };
   }
 
-  /**
-   * Atualiza usuario
-   * @param {string} userId
-   * @param {object} updates - {email, password, role, cpf}
-   * @param {string} actorId - admin user id
-   * @returns {Promise<object>}
-   */
-  async updateUser(userId, updates, actorId) {
+  async atualizarUsuario(userId, updates, actorId) {
     const { email, password, role, cpf } = updates;
-    const normalizedCpf = normalizeCpf(cpf || '');
+    const normalizedCpf = normalizarCpf(cpf || '');
 
     if (!email) {
-      throw new Error('Email obrigatorio');
+      throw new Error('Email obrigatório');
     }
     if (!normalizedCpf) {
-    throw new Error('CPF obrigatorio');
-  }
+      throw new Error('CPF obrigatório');
+    }
 
-    if (normalizedCpf && !isValidCpf(normalizedCpf)) {
-      throw new Error('CPF invalido');
+    if (normalizedCpf && !cpfValido(normalizedCpf)) {
+      throw new Error('CPF inválido');
     }
 
     if (role && !['admin', 'user'].includes(role)) {
-      throw new Error('Invalid role');
+      throw new Error('Função inválida');
     }
 
-    const user = await findActiveUserById(userId);
+    const user = await buscarUsuarioAtivoPorId(userId);
     if (!user) {
-      throw new Error('User nao encontrado');
+      throw new Error('Usuário não encontrado');
     }
 
     const emailInUse = await User.findOne({ email, _id: { $ne: userId } });
     if (emailInUse) {
-      throw new Error('Email existente');
+      throw new Error('Email já existe');
     }
 
     if (normalizedCpf) {
       const cpfInUse = await User.findOne({ cpf: normalizedCpf, _id: { $ne: userId } });
       if (cpfInUse) {
-        throw new Error('CPF existente');
+        throw new Error('CPF já existe');
       }
     }
 
@@ -357,7 +318,7 @@ class UserService {
 
     if (password) {
       if (password.length < 6) {
-        throw new Error('Senha precisa ter no minimo 6 caracteres');
+        throw new Error('A senha precisa ter pelo menos 6 caracteres');
       }
       user.password = password;
     }
@@ -365,7 +326,7 @@ class UserService {
     await user.save();
 
     const actor = await User.findById(actorId);
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'user_updated',
       entityType: 'user',
       entityId: user._id.toString(),
@@ -383,22 +344,17 @@ class UserService {
     };
   }
 
-  /**
-   * Deleta usuario (inativa o usuario)
-   * @param {string} userId
-   * @param {string} actorId - admin user id
-   */
-  async deleteUser(userId, actorId) {
+  async deletarUsuario(userId, actorId) {
     if (actorId.toString() === userId.toString()) {
-      throw new Error('Não pode deletar seu user');
+      throw new Error('Não é possível excluir o próprio usuário');
     }
 
     const deletedUser = await User.findById(userId);
     if (!deletedUser) {
-      throw new Error('User não encontrado');
+      throw new Error('Usuário não encontrado');
     }
 
-    if (!isActiveUser(deletedUser)) {
+    if (!usuarioAtivo(deletedUser)) {
       return deletedUser;
     }
 
@@ -408,7 +364,7 @@ class UserService {
     await deletedUser.save();
 
     const actor = await User.findById(actorId);
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'user_inactivated',
       entityType: 'user',
       entityId: deletedUser._id.toString(),

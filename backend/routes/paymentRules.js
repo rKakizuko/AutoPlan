@@ -5,16 +5,15 @@ import PaymentRulesService from '../services/PaymentRulesService.js';
 
 const router = express.Router();
 
-// Verificar e validar JWT
-const verifyToken = (req, res, next) => {
+const verificarToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Authorization header must be Bearer token' });
+    return res.status(401).json({ message: 'O cabeçalho Authorization deve conter um token Bearer' });
   }
 
   const token = authHeader.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
+    return res.status(401).json({ message: 'Token não informado' });
   }
 
   try {
@@ -23,32 +22,31 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+      return res.status(401).json({ message: 'Token expirado' });
     }
 
     if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token signature or format' });
+      return res.status(401).json({ message: 'Assinatura ou formato do token inválido' });
     }
 
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Token inválido' });
   }
 };
 
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', verificarToken, async (req, res) => {
   try {
     const rules = await PaymentRulesService.get();
     res.json(rules);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
-// Obter regras de pagamento atuais// Atualizar regras de pagamento (PIX, Boleto, Cartão)
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verificarToken, async (req, res) => {
   try {
-    const rules = await PaymentRulesService.update(req.body, req.userId);
+    const rules = await PaymentRulesService.atualizar(req.body, req.userId);
     res.json(rules);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
 

@@ -20,7 +20,7 @@ const PaymentRules = () => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const token = localStorage.getItem('token');
 
-  // Verificar se é admin
+
   if (!user || user.role !== 'admin') {
     navigate('/');
     return null;
@@ -36,7 +36,7 @@ const PaymentRules = () => {
   const [formData, setFormData] = useState({});
   const [message, setMessage] = useState('');
 
-  // Buscar regras de pagamento do backend
+
   useEffect(() => {
     const fetchRules = async () => {
       if (!token) return;
@@ -59,7 +59,7 @@ const PaymentRules = () => {
     fetchRules();
   }, [token]);
 
-  // Ativar modo edição para uma regra
+
   const handleEditRule = (ruleKey) => {
     setEditingRule(ruleKey);
 
@@ -88,7 +88,7 @@ const PaymentRules = () => {
     }
   };
 
-  // Salvar mudanças em uma regra de pagamento
+
   const handleSaveRule = async () => {
     if (!editingRule) return;
 

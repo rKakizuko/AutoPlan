@@ -1,19 +1,9 @@
 import Protocol from '../models/Protocol.js';
 import User from '../models/User.js';
-import { createAuditLog } from '../utils/audit.js';
+import { registrarLogAuditoria } from '../utils/audit.js';
 
 class ProtocolService {
-  /**
-   * Cria novo protocolo de pagamento com parcelas
-   * @param {string} userId
-   * @param {string} cliente
-   * @param {number} precoBase
-   * @param {string} metodo - 'pix' | 'boleto' | 'cartao'
-   * @param {number} parcelas
-   * @param {number} total
-   * @returns {Promise<object>}
-   */
-  async create(userId, cliente, precoBase, metodo, parcelas, total) {
+  async criar(userId, cliente, precoBase, metodo, parcelas, total) {
     const actor = await User.findById(userId);
 
     const protocolId = `PROTO-${Date.now()}`;
@@ -42,7 +32,7 @@ class ProtocolService {
 
     await protocol.save();
 
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'protocol_created',
       entityType: 'protocol',
       entityId: protocol._id.toString(),
@@ -61,62 +51,40 @@ class ProtocolService {
     return protocol;
   }
 
-  /**
-   * Lista protocolos (filtro por admin ou usuário)
-   * @param {string} userId
-   * @param {boolean} isAdmin
-   * @returns {Promise<array>}
-   */
-  async getAll(userId, isAdmin) {
+  async listarTodos(userId, isAdmin) {
     const filter = isAdmin ? {} : { userId };
     const protocols = await Protocol.find(filter).sort({ createdAt: -1 });
     return protocols;
   }
 
-  /**
-   * Obtém um protocolo com verificação de permissão
-   * @param {string} protocolId
-   * @param {string} userId
-   * @param {boolean} isAdmin
-   * @returns {Promise<object>}
-   */
-  async getById(protocolId, userId, isAdmin) {
+  async obterPorId(protocolId, userId, isAdmin) {
     const protocol = await Protocol.findById(protocolId);
 
     if (!protocol) {
-      throw new Error('Protocol not found');
+      throw new Error('Protocolo não encontrado');
     }
 
     if (!isAdmin && protocol.userId.toString() !== userId.toString()) {
-      throw new Error('Not authorized');
+      throw new Error('Não autorizado');
     }
 
     return protocol;
   }
 
-  /**
-   * Atualiza status de pagamento de uma parcela
-   * @param {string} protocolId
-   * @param {string} userId
-   * @param {number} parcelaNumero
-   * @param {boolean} pago
-   * @param {Date} dataPagamento - optional
-   * @returns {Promise<object>}
-   */
-  async updatePaymentStatus(protocolId, userId, parcelaNumero, pago, dataPagamento) {
+  async atualizarStatusPagamento(protocolId, userId, parcelaNumero, pago, dataPagamento) {
     const protocol = await Protocol.findById(protocolId);
 
     if (!protocol) {
-      throw new Error('Protocol not found');
+      throw new Error('Protocolo não encontrado');
     }
 
     if (protocol.userId.toString() !== userId.toString()) {
-      throw new Error('Not authorized');
+      throw new Error('Não autorizado');
     }
 
     const payment = protocol.payments.find((p) => p.parcelaNumero === parcelaNumero);
     if (!payment) {
-      throw new Error('Payment not found');
+      throw new Error('Pagamento não encontrado');
     }
 
     payment.pago = pago;
@@ -129,7 +97,7 @@ class ProtocolService {
     await protocol.save();
 
     const actor = await User.findById(userId);
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: 'protocol_payment_updated',
       entityType: 'protocol_payment',
       entityId: protocol._id.toString(),

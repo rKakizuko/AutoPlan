@@ -5,11 +5,10 @@ import AuditService from '../services/AuditService.js';
 
 const router = express.Router();
 
-// Verificar JWT
-const verifyToken = (req, res, next) => {
+const verificarToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Authorization header must be Bearer token' });
+    return res.status(401).json({ message: 'O cabeçalho Authorization deve conter um token Bearer' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -20,31 +19,30 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+      return res.status(401).json({ message: 'Token expirado' });
     }
 
     if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token signature or format' });
+      return res.status(401).json({ message: 'Assinatura ou formato do token inválido' });
     }
 
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Token inválido' });
   }
 };
 
-// Filtrar e verificar permissão de admin
-const requireAdmin = async (req, res, next) => {
+const exigirAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
     if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' });
+      return res.status(403).json({ message: 'Acesso de administrador necessário' });
     }
     next();
   } catch (err) {
-    return res.status(500).json({ message: 'Server error', error: err.message });
+    return res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 };
 
-router.get('/', verifyToken, requireAdmin, async (req, res) => {
+router.get('/', verificarToken, exigirAdmin, async (req, res) => {
   try {
     const { action, entityType, actorEmail, limit = 100 } = req.query;
     const filters = {};
@@ -56,7 +54,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
     const logs = await AuditService.query(filters, limit);
     res.json(logs);
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
   }
 });
 

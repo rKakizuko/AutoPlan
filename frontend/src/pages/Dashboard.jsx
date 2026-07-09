@@ -5,10 +5,10 @@ import { apiUrl } from '../utils/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  // Dados do usuário autenticado
+
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = user && user.role === 'admin';
-  // Lista de protocolos para exibir
+
   const [protocols, setProtocols] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 980);
@@ -62,7 +62,7 @@ const Dashboard = () => {
     fetchProtocols();
   }, [navigate]);
 
-  // Fazer logout
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -87,8 +87,7 @@ const Dashboard = () => {
 
       <main style={styles.main}>
         <section style={styles.welcome}>
-          <h2 style={styles.welcomeTitle}>Painel de Projetos</h2>
-          <p style={styles.welcomeSubtitle}>Selecione uma ação para começar</p>
+          <h2 style={styles.welcomeTitle}>Painel inicial</h2>
         </section>
 
         <div style={styles.grid(isMobile)}>

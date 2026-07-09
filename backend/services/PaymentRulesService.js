@@ -1,12 +1,8 @@
 import PaymentRules from '../models/PaymentRules.js';
 import User from '../models/User.js';
-import { createAuditLog } from '../utils/audit.js';
+import { registrarLogAuditoria } from '../utils/audit.js';
 
 class PaymentRulesService {
-  /**
-   * Obtém regras de pagamento atuais
-   * @returns {Promise<object>}
-   */
   async get() {
     let rules = await PaymentRules.findOne();
     if (!rules) {
@@ -16,13 +12,7 @@ class PaymentRulesService {
     return rules;
   }
 
-  /**
-   * Atualiza regras de pagamento (PIX, Boleto, Cartão)
-   * @param {object} updates - {pix, boleto, cartao}
-   * @param {string} actorId - admin user id
-   * @returns {Promise<object>}
-   */
-  async update(updates, actorId) {
+  async atualizar(updates, actorId) {
     const actor = await User.findById(actorId);
     let rules = await PaymentRules.findOne();
     const previousRules = rules ? rules.toObject() : null;
@@ -36,7 +26,7 @@ class PaymentRulesService {
     }
     await rules.save();
 
-    await createAuditLog({
+    await registrarLogAuditoria({
       action: previousRules ? 'payment_rules_updated' : 'payment_rules_created',
       entityType: 'payment_rules',
       entityId: rules._id.toString(),

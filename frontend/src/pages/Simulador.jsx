@@ -67,7 +67,7 @@ const Simulador = () => {
       calc = valor * (1 + (rules.cartao?.taxaOperadora ?? DEFAULT_RULES.cartao.taxaOperadora));
       if (parcelas >= 3) calc *= (1 + ((rules.cartao?.jurosMensal ?? DEFAULT_RULES.cartao.jurosMensal) * (parcelas - 2)));
     }
-    setTotal(calc);
+    setTotal(Number(calc.toFixed(2)));
   }, [precoBase, metodo, parcelas, rules]);
 
 

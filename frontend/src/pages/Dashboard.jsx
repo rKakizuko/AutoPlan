@@ -120,7 +120,7 @@ const Dashboard = () => {
 
             {isAdmin && (
               <Link to="/payment-rules" style={styles.mainCard}>
-                <div style={styles.icon}>⚙️</div>
+                <div style={styles.icon}>📋</div>
                 <div style={styles.cardText}>
                   <h3>Configurar Taxas</h3>
                   <p>Editar regras de pagamento</p>

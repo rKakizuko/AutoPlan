@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../utils/api';
 
 const DEFAULT_RULES = {
-  pix: { nome: 'PIX (10% OFF)', taxa: -0.10 },
-  boleto: { nome: 'Boleto (5% Taxa)', taxa: 0.05, parcelas: true },
+  pix: { nome: 'PIX ', taxa: -0.10 },
+  boleto: { nome: 'Boleto ', taxa: 0.05, parcelas: true },
   cartao: { taxaOperadora: 0.04, jurosMensal: 0.0249, parcelas: true }
 };
 
@@ -198,6 +198,7 @@ const styles = {
   },
   logo: { color: 'var(--app-accent)', margin: 0, fontSize: '24px' },
   userSection: { display: 'flex', alignItems: 'center', gap: '20px' },
+  userProfile: { color: 'var(--app-text)', display: 'flex', alignItems: 'center', gap: '10px' },
   card: { backgroundColor: 'var(--app-surface)', color: 'var(--app-text)', padding: '30px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.35)', border: '1px solid var(--app-border)', width: '100%', maxWidth: '400px', margin: '40px auto' },
   backBtn: {
     padding: '10px 16px',

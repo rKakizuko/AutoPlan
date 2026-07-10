@@ -149,8 +149,8 @@ const ProtocolDetail = () => {
   }
 
   const metodoNomes = {
-    pix: 'PIX (10% OFF)',
-    boleto: 'Boleto (5% Taxa)',
+    pix: 'PIX',
+    boleto: 'Boleto',
     cartao: 'Cartão de Crédito'
   };
 

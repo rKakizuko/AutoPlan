@@ -156,7 +156,7 @@ const PaymentRules = () => {
         <h1 style={styles.logo}>AutoPlan</h1>
         <div style={styles.userSection}>
           <span style={styles.userProfile}>
-            Administrador
+            {user?.email || 'Usuário'}
             <span style={styles.adminBadge}>ADMIN</span>
           </span>
           <button onClick={() => navigate('/')} style={styles.backBtn}>← Voltar ao Dashboard</button>

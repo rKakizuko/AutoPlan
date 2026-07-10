@@ -6,8 +6,8 @@ import { apiUrl } from '../utils/api';
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  const isAdmin = user && user.role === 'admin';
+  const [user, setUser] = React.useState(null);
+  const isAdmin = user?.role === 'admin';
 
   const [protocols, setProtocols] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -26,7 +26,7 @@ const Dashboard = () => {
   }, []);
 
   React.useEffect(() => {
-    const fetchProtocols = async () => {
+    const fetchDashboardData = async () => {
       const localPreviewProtocol = ensureLocalPreviewProtocol();
       const token = localStorage.getItem('token');
       if (!token) {
@@ -35,14 +35,30 @@ const Dashboard = () => {
       }
 
       try {
-        const response = await fetch(apiUrl('/api/protocols'), {
+        const [profileResponse, protocolsResponse] = await Promise.all([
+          fetch(apiUrl('/api/auth/me'), {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(apiUrl('/api/protocols'), {
           headers: { 'Authorization': `Bearer ${token}` }
-        });
+          }),
+        ]);
 
-        const data = await response.json();
+        const profileData = await profileResponse.json();
+        const protocolsData = await protocolsResponse.json();
 
-        if (response.ok) {
-          const remoteProtocols = Array.isArray(data) ? data : [];
+        if (!profileResponse.ok) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/login');
+          return;
+        }
+
+        setUser(profileData);
+        localStorage.setItem('user', JSON.stringify(profileData));
+
+        if (protocolsResponse.ok) {
+          const remoteProtocols = Array.isArray(protocolsData) ? protocolsData : [];
           const mergedProtocols = [
             localPreviewProtocol,
             ...remoteProtocols.filter((protocol) => protocol?._id !== localPreviewProtocol._id)
@@ -59,7 +75,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchProtocols();
+    fetchDashboardData();
   }, [navigate]);
 
 
